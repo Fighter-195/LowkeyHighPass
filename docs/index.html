@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lowkey HighPass Audio Demo</title>
+  <style>
+    body {
+      font-family: "Inter", sans-serif;
+      background: #0d1117;
+      color: #c9d1d9;
+      margin: 0;
+      padding: 40px;
+    }
+    h1 {
+      color: #58a6ff;
+      text-align: center;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .controls {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    select {
+      margin: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      background: #161b22;
+      color: #c9d1d9;
+    }
+    .content-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 30px;
+    }
+    .audio-box {
+      padding: 20px;
+      background: #161b22;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(88, 166, 255, 0.2);
+    }
+    .audio-box h2 {
+      color: #58a6ff;
+      margin-top: 0;
+    }
+    audio {
+      width: 100%;
+      margin: 10px 0;
+    }
+    .metrics-box {
+      padding: 20px;
+      background: #161b22;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(88, 166, 255, 0.2);
+    }
+    .metrics-box h2 {
+      color: #58a6ff;
+      margin-top: 0;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #30363d;
+    }
+    th {
+      background: #0d1117;
+      color: #58a6ff;
+      font-weight: 600;
+    }
+    td {
+      color: #c9d1d9;
+    }
+    tr:hover {
+      background: #1c2128;
+    }
+    .metric-value {
+      font-weight: 600;
+      color: #7ee787;
+    }
+    #contentSection {
+      display: none;
+    }
+    @media (max-width: 768px) {
+      .content-wrapper {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎧 Lowkey HighPass Audio Demo</h1>
+    <div class="controls">
+      <p>Select a processing method and interference type to hear results.</p>
+      <div>
+        <label for="method">Method:</label>
+        <select id="method">
+          <option value="">-- Choose Method --</option>
+          <option value="neural">Neural Beamformer</option>
+          <option value="two_channel">Two Channel Audio Zooming</option>
+          <option value="nested">Nested Beamformer</option>
+        </select>
+        <label for="interference">Interference:</label>
+        <select id="interference">
+          <option value="">-- Choose Interference --</option>
+          <option value="female">Female Speech</option>
+          <option value="male">Male Speech</option>
+          <option value="water">Water</option>
+          <option value="song">Song</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="contentSection">
+      <div class="content-wrapper">
+        <div class="audio-column">
+          <div class="audio-box">
+            <h2>Mixed Signal</h2>
+            <audio id="mixedAudio" controls></audio>
+          </div>
+          <div class="audio-box">
+            <h2>Output Signal</h2>
+            <audio id="outputAudio" controls></audio>
+          </div>
+        </div>
+
+        <div class="metrics-column">
+          <div class="metrics-box">
+            <h2>Performance Metrics</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th>Score</th>
+                </tr>
+              </thead>
+              <tbody id="metricsTable">
+                <tr>
+                  <td>STOI</td>
+                  <td class="metric-value" id="stoi">--</td>
+                </tr>
+                <tr>
+                  <td>PESQ</td>
+                  <td class="metric-value" id="pesq">--</td>
+                </tr>
+                <tr>
+                  <td>SNR (dB)</td>
+                  <td class="metric-value" id="snr">--</td>
+                </tr>
+                <tr>
+                  <td>ViSQOL</td>
+                  <td class="metric-value" id="visqol">--</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const mixedAudio = document.getElementById("mixedAudio");
+    const outputAudio = document.getElementById("outputAudio");
+    const contentSection = document.getElementById("contentSection");
+    const methodSelect = document.getElementById("method");
+    const interferenceSelect = document.getElementById("interference");
+
+    // Placeholder metrics data - replace with actual data source
+    const metricsData = {
+      neural_female: { stoi: 0.85, pesq: 3.2, snr: 12.5, visqol: 4.1 },
+      neural_male: { stoi: 0.82, pesq: 3.0, snr: 11.8, visqol: 3.9 },
+      neural_water: { stoi: 0.88, pesq: 3.5, snr: 14.2, visqol: 4.3 },
+      neural_song: { stoi: 0.79, pesq: 2.9, snr: 10.5, visqol: 3.7 },
+      two_channel_female: { stoi: 0.83, pesq: 3.1, snr: 12.0, visqol: 4.0 },
+      two_channel_male: { stoi: 0.80, pesq: 2.9, snr: 11.2, visqol: 3.8 },
+      two_channel_water: { stoi: 0.86, pesq: 3.3, snr: 13.5, visqol: 4.2 },
+      two_channel_song: { stoi: 0.77, pesq: 2.8, snr: 10.0, visqol: 3.6 },
+      nested_female: { stoi: 0.87, pesq: 3.4, snr: 13.2, visqol: 4.2 },
+      nested_male: { stoi: 0.84, pesq: 3.2, snr: 12.5, visqol: 4.0 },
+      nested_water: { stoi: 0.90, pesq: 3.7, snr: 15.0, visqol: 4.5 },
+      nested_song: { stoi: 0.81, pesq: 3.0, snr: 11.0, visqol: 3.8 }
+    };
+
+    interferenceSelect.addEventListener("change", updateAudio);
+    methodSelect.addEventListener("change", updateAudio);
+
+    function updateAudio() {
+      const method = methodSelect.value;
+      const interference = interferenceSelect.value;
+      if (!method || !interference) return;
+
+      // 🔗 Replace with your actual GitHub raw URLs
+      const baseURL = "https://raw.githubusercontent.com/ElectronicsClub-IITK/LowkeyHighPass/main/";
+      const mixedURL = `${baseURL}mixed_audio/mixed_${interference}.flac`;
+      const outputURL = `${baseURL}output_audio/${method}_${interference}.flac`;
+
+      mixedAudio.src = mixedURL;
+      outputAudio.src = outputURL;
+
+      // Update metrics
+      const key = `${method}_${interference}`;
+      const metrics = metricsData[key] || { stoi: '--', pesq: '--', snr: '--', visqol: '--' };
+      
+      document.getElementById("stoi").textContent = metrics.stoi;
+      document.getElementById("pesq").textContent = metrics.pesq;
+      document.getElementById("snr").textContent = metrics.snr;
+      document.getElementById("visqol").textContent = metrics.visqol;
+
+      contentSection.style.display = "block";
+    }
+  </script>
+</body>
+</html>
