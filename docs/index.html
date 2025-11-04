@@ -134,7 +134,10 @@
           </div>
           <div class="audio-box">
             <h2>Output Signal</h2>
-            <audio id="outputAudio" controls></audio>
+            <audio id="outputAudio" controls>
+              <source id="outputSource" type="audio/flac">
+              Your browser does not support the audio element.
+            </audio>
           </div>
         </div>
 
@@ -191,6 +194,16 @@
       console.log('Mixed audio loaded successfully!');
     });
 
+    outputAudio.addEventListener('error', function(e) {
+      console.error('Output audio error:', e);
+      console.error('Failed to load:', outputAudio.src);
+      console.error('Error code:', outputAudio.error ? outputAudio.error.code : 'unknown');
+    });
+
+    outputAudio.addEventListener('loadeddata', function() {
+      console.log('Output audio loaded successfully!');
+    });
+
     // Placeholder metrics data - replace with actual data source
     const metricsData = {
       neural_female: { stoi: 0.85, pesq: 3.2, snr: 12.5, visqol: 4.1 },
@@ -232,10 +245,17 @@
       const mixedSource = document.getElementById("mixedSource");
       mixedSource.src = mixedURL;
       mixedAudio.load(); // Force reload
-      outputAudio.src = ""; // Clear output for now
       
-      // Show placeholder for output
-      outputAudio.parentElement.querySelector('h2').textContent = "Output Signal (Coming Soon)";
+      // Load output audio
+      const outputURL = `${baseURL}output_audio/${method}_${interference}.flac`;
+      console.log("Loading output audio from:", outputURL); // Debug log
+      
+      const outputSource = document.getElementById("outputSource");
+      outputSource.src = outputURL;
+      outputAudio.load(); // Force reload
+      
+      // Update heading
+      outputAudio.parentElement.querySelector('h2').textContent = "Output Signal";
 
       // Update metrics
       const key = `${method}_${interference}`;
