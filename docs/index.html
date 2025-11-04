@@ -127,7 +127,10 @@
         <div class="audio-column">
           <div class="audio-box">
             <h2>Mixed Signal</h2>
-            <audio id="mixedAudio" controls></audio>
+            <audio id="mixedAudio" controls>
+      <source id="mixedSource" type="audio/flac">
+      Your browser does not support the audio element.
+    </audio>
           </div>
           <div class="audio-box">
             <h2>Output Signal</h2>
@@ -177,6 +180,17 @@
     const methodSelect = document.getElementById("method");
     const interferenceSelect = document.getElementById("interference");
 
+    // Add error handling for audio elements
+    mixedAudio.addEventListener('error', function(e) {
+      console.error('Mixed audio error:', e);
+      console.error('Failed to load:', mixedAudio.src);
+      console.error('Error code:', mixedAudio.error ? mixedAudio.error.code : 'unknown');
+    });
+
+    mixedAudio.addEventListener('loadeddata', function() {
+      console.log('Mixed audio loaded successfully!');
+    });
+
     // Placeholder metrics data - replace with actual data source
     const metricsData = {
       neural_female: { stoi: 0.85, pesq: 3.2, snr: 12.5, visqol: 4.1 },
@@ -201,13 +215,19 @@
       const interference = interferenceSelect.value;
       if (!method || !interference) return;
 
-      // 🔗 Replace with your actual GitHub raw URLs
+      // 🔗 GitHub raw URLs
       const baseURL = "https://raw.githubusercontent.com/ElectronicsClub-IITK/LowkeyHighPass/main/";
-      const mixedURL = `${baseURL}mixed_audio/male_${interference}_mixture.wav`;
-      const outputURL = `${baseURL}output_audio/${method}_${interference}.flac`;
-
-      mixedAudio.src = mixedURL;
-      outputAudio.src = outputURL;
+      const mixedURL = `${baseURL}mixed_audio/male_${interference}_mixture.flac`;
+      
+      console.log("Loading mixed audio from:", mixedURL); // Debug log
+      
+      const mixedSource = document.getElementById("mixedSource");
+      mixedSource.src = mixedURL;
+      mixedAudio.load(); // Force reload
+      outputAudio.src = ""; // Clear output for now
+      
+      // Show placeholder for output
+      outputAudio.parentElement.querySelector('h2').textContent = "Output Signal (Coming Soon)";
 
       // Update metrics
       const key = `${method}_${interference}`;
