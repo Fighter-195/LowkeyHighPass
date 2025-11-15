@@ -122,15 +122,13 @@
           <option value="">-- Choose Method --</option>
           <option value="neural_reverb">Neural Beamformer - Reverb</option>
           <option value="neural_anechoic">Neural Beamformer - Anechoic</option>
-          <option value="two_channel_reverb">Two Channel - Reverb</option>
-          <option value="two_channel_anechoic">Two Channel - Anechoic</option>
+          <option value="two_channel_audiozooming">Two Channel AudioZooming</option>
           <option value="neural_transformer_reverb">Neural Transformer - Reverb</option>
           <option value="neural_transformer_anechoic">Neural Transformer - Anechoic</option>
-          <option value="sepformer_mark1">Sepformer - Mark 1</option>
-          <option value="sepformer_mark2">Sepformer - Mark 2</option>
+          <option value="sepformer_das_enh">Sepformer - DAS+Enh</option>
+          <option value="sepformer_enh_enh">Sepformer - Enh+Enh</option>
           <option value="sepformer_mark3">Sepformer - Mark 3</option>
-          <option value="high_beamformer_reverb">High Beamformer - Reverb</option>
-          <option value="high_beamformer_anechoic">High Beamformer - Anechoic</option>
+          <option value="hybeam">HyBeam</option>
           <option value="student_teacher">Student Teacher</option>
         </select>
       </div>
@@ -201,37 +199,33 @@
     const contentSection = document.getElementById("contentSection");
     const methodSelect = document.getElementById("method");
 
-    // Method metrics data (averaged across all interferences for each method)
-    const methodMetricsData = {
-      neural_reverb: { stoi: 0.835, pesq: 3.15, snr: 12.25, visqol: 4.0 },
-      neural_anechoic: { stoi: 0.855, pesq: 3.25, snr: 12.83, visqol: 4.1 },
-      two_channel_reverb: { stoi: 0.6164, pesq: 3.18, snr: 0.0, visqol: 0.0 },
-      two_channel_anechoic: { stoi: 0.63, pesq: 3.24, snr: 0.0, visqol: 0.0 },
-      neural_transformer_reverb: { stoi: 0.845, pesq: 3.25, snr: 12.53, visqol: 4.0 },
-      neural_transformer_anechoic: { stoi: 0.865, pesq: 3.35, snr: 13.25, visqol: 4.15 },
-      sepformer_mark1: { stoi: 0.825, pesq: 3.15, snr: 11.95, visqol: 3.9 },
-      sepformer_mark2: { stoi: 0.845, pesq: 3.25, snr: 12.48, visqol: 4.0 },
-      sepformer_mark3: { stoi: 0.865, pesq: 3.35, snr: 12.95, visqol: 4.1 },
-      high_beamformer_reverb: { stoi: 0.855, pesq: 3.33, snr: 12.93, visqol: 4.13 },
-      high_beamformer_anechoic: { stoi: 0.875, pesq: 3.45, snr: 13.53, visqol: 4.23 },
-      student_teacher: { stoi: 0.88, pesq: 3.5, snr: 13.8, visqol: 4.3 }
-    };
+// Method metrics data (averaged across all interferences for each method)
+const methodMetricsData = {
+  neural_reverb: { stoi: 0.72, pesq: 1.05, snr: 3.7 },
+  neural_anechoic: { stoi: 0.0, pesq: 0.0, snr: 0.0 },
+  two_channel_audiozooming: { stoi: 0.61, pesq: 3.18, snr: 0.0 },
+  neural_transformer_reverb: { stoi: 0.0, pesq: 0.0, snr: 0.0 },
+  neural_transformer_anechoic: { stoi: 0.0, pesq: 0.0, snr: 0.0 },
+  sepformer_das_enh: { stoi: 0.814, pesq: 2.655, snr: -0.28 },
+  sepformer_enh_enh: { stoi: 0.761, pesq: 2.077, snr: 6.79 },
+  sepformer_mark3: { stoi: 0.0, pesq: 0.0, snr: 0.0 },
+  hybeam: { stoi: 0.75, pesq: 1.29, snr: 4.56 },
+  student_teacher: { stoi: 0.74, pesq: 1.45, snr: 5.69 }
+};
 
-    // Time complexity metrics data (per method)
-    const timeComplexityData = {
-      neural_reverb: { rtDelay: '50ms', cpuRam: '2.5 GB', gpuVram: '4 GB', macsPerSec: '1.2M', complexity: 'O(n²)' },
-      neural_anechoic: { rtDelay: '48ms', cpuRam: '2.3 GB', gpuVram: '3.8 GB', macsPerSec: '1.1M', complexity: 'O(n²)' },
-      two_channel_reverb: { rtDelay: '10ms', cpuRam: '512 MB', gpuVram: 'N/A', macsPerSec: '200K', complexity: 'O(n)' },
-      two_channel_anechoic: { rtDelay: '8ms', cpuRam: '480 MB', gpuVram: 'N/A', macsPerSec: '180K', complexity: 'O(n)' },
-      neural_transformer_reverb: { rtDelay: '65ms', cpuRam: '3.0 GB', gpuVram: '5 GB', macsPerSec: '1.5M', complexity: 'O(n² log n)' },
-      neural_transformer_anechoic: { rtDelay: '62ms', cpuRam: '2.8 GB', gpuVram: '4.8 GB', macsPerSec: '1.4M', complexity: 'O(n² log n)' },
-      sepformer_mark1: { rtDelay: '55ms', cpuRam: '2.8 GB', gpuVram: '4.5 GB', macsPerSec: '1.3M', complexity: 'O(n²)' },
-      sepformer_mark2: { rtDelay: '70ms', cpuRam: '3.2 GB', gpuVram: '5.5 GB', macsPerSec: '1.6M', complexity: 'O(n²)' },
-      sepformer_mark3: { rtDelay: '85ms', cpuRam: '3.8 GB', gpuVram: '6.5 GB', macsPerSec: '1.9M', complexity: 'O(n²)' },
-      high_beamformer_reverb: { rtDelay: '75ms', cpuRam: '3.2 GB', gpuVram: '6 GB', macsPerSec: '1.8M', complexity: 'O(n² log n)' },
-      high_beamformer_anechoic: { rtDelay: '72ms', cpuRam: '3.0 GB', gpuVram: '5.8 GB', macsPerSec: '1.7M', complexity: 'O(n² log n)' },
-      student_teacher: { rtDelay: '45ms', cpuRam: '2.0 GB', gpuVram: '3.5 GB', macsPerSec: '1.0M', complexity: 'O(n log n)' }
-    };
+// Time complexity metrics data (per method)
+const timeComplexityData = {
+  neural_reverb: { cpuRam: '0.0 GB', gpuVram: '0.0 GB', macsPerSec: '0.0M', complexity: '0.0' },
+  neural_anechoic: { cpuRam: '0.0 GB', gpuVram: '0.0 GB', macsPerSec: '0.0M', complexity: '0.0' },
+  two_channel_audiozooming: { cpuRam: '0.0 MB', gpuVram: 'N/A', macsPerSec: '0.0K', complexity: '0.0' },
+  neural_transformer_reverb: { cpuRam: '0.0 GB', gpuVram: '0.0 GB', macsPerSec: '0.0M', complexity: '0.0' },
+  neural_transformer_anechoic: { cpuRam: '0.0 GB', gpuVram: '0.0 GB', macsPerSec: '0.0M', complexity: '0.0' },
+  sepformer_das_enh: { cpuRam: '0.0 GB', gpuVram: '0.0 GB', macsPerSec: '0.0M', complexity: '0.0' },
+  sepformer_enh_enh: { cpuRam: '0.0 GB', gpuVram: '0.0 GB', macsPerSec: '0.0M', complexity: '0.0' },
+  sepformer_mark3: { cpuRam: '0.0 GB', gpuVram: '0.0 GB', macsPerSec: '0.0M', complexity: '0.0' },
+  hybeam: { cpuRam: '0.0 GB', gpuVram: '0.0 GB', macsPerSec: '0.0M', complexity: '0.0' },
+  student_teacher: { cpuRam: '927.4 MB', gpuVram: '524 MB', macsPerSec: '87354 M', complexity: 'N A' }
+};
 
     methodSelect.addEventListener("change", updateMetrics);
 
@@ -266,7 +260,6 @@
   </script>
 </body>
 </html>
-
 
 
 
