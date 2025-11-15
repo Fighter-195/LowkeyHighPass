@@ -3,6 +3,291 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Signal Processing Cup 2026 | IIT Kanpur Lowkey High-Pass | Method Comparison</title>
+  <style>
+    body {
+      font-family: "Inter", sans-serif;
+      background: #0d1117;
+      color: #c9d1d9;
+      margin: 0;
+      padding: 40px;
+    }
+    h1, h2, h3 {
+      text-align: center;
+      margin: 0;
+    }
+    h1 {
+      color: #58a6ff;
+      font-size: 2.5em;
+      margin-bottom: 0.2em;
+    }
+    h2 {
+      color: #79c0ff;
+      font-size: 1.8em;
+      margin-bottom: 0.2em;
+    }
+    h3 {
+      color: #c9d1d9;
+      font-size: 1.3em;
+      margin-bottom: 1em;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .controls {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    select {
+      margin: 10px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      background: #161b22;
+      color: #c9d1d9;
+      font-size: 16px;
+      min-width: 350px;
+      cursor: pointer;
+    }
+    select:hover {
+      background: #1c2128;
+    }
+    .content-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 30px;
+    }
+    .metrics-box {
+      padding: 20px;
+      background: #161b22;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(88, 166, 255, 0.2);
+    }
+    .metrics-box h2 {
+      color: #58a6ff;
+      margin-top: 0;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #30363d;
+    }
+    th {
+      background: #0d1117;
+      color: #58a6ff;
+      font-weight: 600;
+    }
+    td {
+      color: #c9d1d9;
+    }
+    tr:hover {
+      background: #1c2128;
+    }
+    .metric-value {
+      font-weight: 600;
+      color: #7ee787;
+    }
+    #contentSection {
+      display: none;
+    }
+    @media (max-width: 768px) {
+      .content-wrapper {
+        grid-template-columns: 1fr;
+      }
+      select {
+        min-width: 280px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Signal Processing Cup 2026</h1>
+    <h2>IIT Kanpur : Lowkey High-Pass</h2>
+    <h3>📊 Method Comparison & Performance Metrics</h3>
+
+    <div class="controls">
+      <p>Select a processing method to view its performance metrics.</p>
+      <div>
+        <label for="method">Method:</label>
+        <select id="method">
+          <option value="">-- Choose Method --</option>
+          <option value="neural_reverb">Neural Beamformer - Reverb</option>
+          <option value="neural_anechoic">Neural Beamformer - Anechoic</option>
+          <option value="two_channel_reverb">Two Channel - Reverb</option>
+          <option value="two_channel_anechoic">Two Channel - Anechoic</option>
+          <option value="neural_transformer_reverb">Neural Transformer - Reverb</option>
+          <option value="neural_transformer_anechoic">Neural Transformer - Anechoic</option>
+          <option value="sepformer_mark1">Sepformer - Mark 1</option>
+          <option value="sepformer_mark2">Sepformer - Mark 2</option>
+          <option value="sepformer_mark3">Sepformer - Mark 3</option>
+          <option value="high_beamformer_reverb">High Beamformer - Reverb</option>
+          <option value="high_beamformer_anechoic">High Beamformer - Anechoic</option>
+          <option value="student_teacher">Student Teacher</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="contentSection">
+      <div class="content-wrapper">
+        <div class="metrics-box">
+          <h2>Method Metrics</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Metric</th>
+                <th>Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>STOI</td>
+                <td class="metric-value" id="methodStoi">--</td>
+              </tr>
+              <tr>
+                <td>PESQ</td>
+                <td class="metric-value" id="methodPesq">--</td>
+              </tr>
+              <tr>
+                <td>SNR (dB)</td>
+                <td class="metric-value" id="methodSnr">--</td>
+              </tr>
+              <tr>
+                <td>ViSQOL</td>
+                <td class="metric-value" id="methodVisqol">--</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="metrics-box">
+          <h2>Time Complexity Metrics</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Metric</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Real-Time Delay</td>
+                <td class="metric-value" id="rtDelay">--</td>
+              </tr>
+              <tr>
+                <td>CPU RAM</td>
+                <td class="metric-value" id="cpuRam">--</td>
+              </tr>
+              <tr>
+                <td>GPU VRAM</td>
+                <td class="metric-value" id="gpuVram">--</td>
+              </tr>
+              <tr>
+                <td>MACs/s</td>
+                <td class="metric-value" id="macsPerSec">--</td>
+              </tr>
+              <tr>
+                <td>Complexity</td>
+                <td class="metric-value" id="complexity">--</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const contentSection = document.getElementById("contentSection");
+    const methodSelect = document.getElementById("method");
+
+    // Method metrics data (averaged across all interferences for each method)
+    const methodMetricsData = {
+      neural_reverb: { stoi: 0.835, pesq: 3.15, snr: 12.25, visqol: 4.0 },
+      neural_anechoic: { stoi: 0.855, pesq: 3.25, snr: 12.83, visqol: 4.1 },
+      two_channel_reverb: { stoi: 0.6164, pesq: 3.18, snr: 0.0, visqol: 0.0 },
+      two_channel_anechoic: { stoi: 0.63, pesq: 3.24, snr: 0.0, visqol: 0.0 },
+      neural_transformer_reverb: { stoi: 0.845, pesq: 3.25, snr: 12.53, visqol: 4.0 },
+      neural_transformer_anechoic: { stoi: 0.865, pesq: 3.35, snr: 13.25, visqol: 4.15 },
+      sepformer_mark1: { stoi: 0.825, pesq: 3.15, snr: 11.95, visqol: 3.9 },
+      sepformer_mark2: { stoi: 0.845, pesq: 3.25, snr: 12.48, visqol: 4.0 },
+      sepformer_mark3: { stoi: 0.865, pesq: 3.35, snr: 12.95, visqol: 4.1 },
+      high_beamformer_reverb: { stoi: 0.855, pesq: 3.33, snr: 12.93, visqol: 4.13 },
+      high_beamformer_anechoic: { stoi: 0.875, pesq: 3.45, snr: 13.53, visqol: 4.23 },
+      student_teacher: { stoi: 0.88, pesq: 3.5, snr: 13.8, visqol: 4.3 }
+    };
+
+    // Time complexity metrics data (per method)
+    const timeComplexityData = {
+      neural_reverb: { rtDelay: '50ms', cpuRam: '2.5 GB', gpuVram: '4 GB', macsPerSec: '1.2M', complexity: 'O(n²)' },
+      neural_anechoic: { rtDelay: '48ms', cpuRam: '2.3 GB', gpuVram: '3.8 GB', macsPerSec: '1.1M', complexity: 'O(n²)' },
+      two_channel_reverb: { rtDelay: '10ms', cpuRam: '512 MB', gpuVram: 'N/A', macsPerSec: '200K', complexity: 'O(n)' },
+      two_channel_anechoic: { rtDelay: '8ms', cpuRam: '480 MB', gpuVram: 'N/A', macsPerSec: '180K', complexity: 'O(n)' },
+      neural_transformer_reverb: { rtDelay: '65ms', cpuRam: '3.0 GB', gpuVram: '5 GB', macsPerSec: '1.5M', complexity: 'O(n² log n)' },
+      neural_transformer_anechoic: { rtDelay: '62ms', cpuRam: '2.8 GB', gpuVram: '4.8 GB', macsPerSec: '1.4M', complexity: 'O(n² log n)' },
+      sepformer_mark1: { rtDelay: '55ms', cpuRam: '2.8 GB', gpuVram: '4.5 GB', macsPerSec: '1.3M', complexity: 'O(n²)' },
+      sepformer_mark2: { rtDelay: '70ms', cpuRam: '3.2 GB', gpuVram: '5.5 GB', macsPerSec: '1.6M', complexity: 'O(n²)' },
+      sepformer_mark3: { rtDelay: '85ms', cpuRam: '3.8 GB', gpuVram: '6.5 GB', macsPerSec: '1.9M', complexity: 'O(n²)' },
+      high_beamformer_reverb: { rtDelay: '75ms', cpuRam: '3.2 GB', gpuVram: '6 GB', macsPerSec: '1.8M', complexity: 'O(n² log n)' },
+      high_beamformer_anechoic: { rtDelay: '72ms', cpuRam: '3.0 GB', gpuVram: '5.8 GB', macsPerSec: '1.7M', complexity: 'O(n² log n)' },
+      student_teacher: { rtDelay: '45ms', cpuRam: '2.0 GB', gpuVram: '3.5 GB', macsPerSec: '1.0M', complexity: 'O(n log n)' }
+    };
+
+    methodSelect.addEventListener("change", updateMetrics);
+
+    function updateMetrics() {
+      const method = methodSelect.value;
+      
+      console.log("Method selected:", method);
+      
+      if (!method) {
+        console.log("No method selected, hiding content...");
+        contentSection.style.display = "none";
+        return;
+      }
+
+      // Update method metrics
+      const methodMetrics = methodMetricsData[method] || { stoi: '--', pesq: '--', snr: '--', visqol: '--' };
+      
+      document.getElementById("methodStoi").textContent = methodMetrics.stoi;
+      document.getElementById("methodPesq").textContent = methodMetrics.pesq;
+      document.getElementById("methodSnr").textContent = methodMetrics.snr;
+      document.getElementById("methodVisqol").textContent = methodMetrics.visqol;
+
+      // Update time complexity metrics
+      const timeMetrics = timeComplexityData[method] || { rtDelay: '--', cpuRam: '--', gpuVram: '--', macsPerSec: '--', complexity: '--' };
+      
+      document.getElementById("rtDelay").textContent = timeMetrics.rtDelay;
+      document.getElementById("cpuRam").textContent = timeMetrics.cpuRam;
+      document.getElementById("gpuVram").textContent = timeMetrics.gpuVram;
+      document.getElementById("macsPerSec").textContent = timeMetrics.macsPerSec;
+      document.getElementById("complexity").textContent = timeMetrics.complexity;
+
+      contentSection.style.display = "block";
+    }
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+<!--LOADS AUDIO ALSO <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Signal Processing Cup 2026 | IIT Kanpur Lowkey High-Pass | Audio Demo with Metrics</title>
   <style>
     body {
@@ -384,4 +669,4 @@
     }
   </script>
 </body>
-</html>
+</html> -->
