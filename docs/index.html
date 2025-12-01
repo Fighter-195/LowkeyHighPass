@@ -73,7 +73,7 @@
           </div>
 
           <div class="audio-box">
-            <h2>Model Output (primary)</h2>
+            <h2>Model Output</h2>
             <audio id="outputAudio" controls>
               <source id="outputSource" type="audio/flac">
               Your browser does not support the audio element.
@@ -97,7 +97,6 @@
                 <tr><td>STOI</td><td class="metric-value" id="stoi">--</td></tr>
                 <tr><td>PESQ</td><td class="metric-value" id="pesq">--</td></tr>
                 <tr><td>SNR (dB)</td><td class="metric-value" id="snr">--</td></tr>
-                <tr><td>ViSQOL</td><td class="metric-value" id="visqol">--</td></tr>
               </tbody>
             </table>
           </div>
@@ -127,7 +126,7 @@
     const baseURL = "https://raw.githubusercontent.com/ElectronicsClub-IITK/LowkeyHighPass/main/";
 
     // shared mixed files
-    const mixedFiles = ["female", "male", "water", "song"];
+    const mixedFiles = ["female_female", "male_male", "male_water", "male_song"];
 
     // method-level averaged metrics (use the exact values you provided)
     const methodMetricsData = {
@@ -153,13 +152,6 @@
       student_teacher: { cpuRam: '927.4 MB', gpuVram: '524 MB', macsPerSec: '87354 M', complexity: 'N A' }
     };
 
-    // optional per method+mixed specific metrics (fill in more if you have them)
-    const specificMetricsData = {
-      neural_reverb_female: { stoi: 0.85, pesq: 3.2, snr: 12.5, visqol: 4.1 },
-      neural_reverb_male:   { stoi: 0.82, pesq: 3.0, snr: 11.8, visqol: 3.9 },
-      two_channel_audiozooming_female: { stoi: 0.5853, pesq: 3.19, snr: 0.0, visqol: 0.0 }
-    };
-
     // DOM refs
     const methodSelect = document.getElementById('method');
     const mixedSelect = document.getElementById('mixedFile');
@@ -176,7 +168,6 @@
     const stoiEl = document.getElementById('stoi');
     const pesqEl = document.getElementById('pesq');
     const snrEl = document.getElementById('snr');
-    const visqolEl = document.getElementById('visqol');
     const rtDelayEl = document.getElementById('rtDelay');
     const cpuRamEl = document.getElementById('cpuRam');
     const gpuVramEl = document.getElementById('gpuVram');
@@ -247,11 +238,10 @@
 
       // update specific metrics table if present
       const key = `${method}_${mixed}`;
-      const spec = specificMetricsData[key] || { stoi: '--', pesq: '--', snr: '--', visqol: '--' };
+      const spec = specificMetricsData[key] || { stoi: '--', pesq: '--', snr: '--' };
       stoiEl.textContent = spec.stoi;
       pesqEl.textContent = spec.pesq;
       snrEl.textContent = spec.snr;
-      visqolEl.textContent = spec.visqol;
 
       extraOutputsContainer.style.display = 'none';
       extraOutputs.innerHTML = '';
