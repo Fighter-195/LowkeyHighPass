@@ -107,7 +107,7 @@
           <option value="hybeam">HyBeam</option>
         </select>
 
-        <label for="mixedFile">Mixed audio (for chosen method):</label>
+        <label for="mixedFile">Mixed audio (same pool for all methods):</label>
         <select id="mixedFile">
           <option value="">-- Choose Mixed File --</option>
         </select>
@@ -182,14 +182,8 @@
     // Base GitHub raw path (update to your real repo if different)
     const baseURL = "https://raw.githubusercontent.com/ElectronicsClub-IITK/LowkeyHighPass/main/";
 
-    // available mixed files per method (filenames are the suffix used in the repo)
-    const mixedFilesPerMethod = {
-      neural: ["female", "male", "water", "song"],
-      two_channel: ["female", "male", "water", "song"],
-      nested: ["female", "male", "water", "song"],
-      sepformer: ["female", "male", "water", "song"],
-      hybeam: ["female", "male", "water", "song"]
-    };
+    // single pool of mixed files used for all methods
+    const mixedFiles = ["female", "male", "water", "song"];
 
     // specific metrics (example values) - keyed by method_mixed
     const specificMetricsData = {
@@ -245,9 +239,7 @@
         return;
       }
 
-      const files = mixedFilesPerMethod[method] || [];
-      files.forEach(name => {
-        // show a friendly label
+      mixedFiles.forEach(name => {
         const label = name.charAt(0).toUpperCase() + name.slice(1);
         const opt = document.createElement('option');
         opt.value = name;
@@ -267,10 +259,9 @@
       complexityEl.textContent = m.complexity || '--';
     }
 
-    function buildMixedUrl(method, mixedName) {
-      // e.g. mixed_audio/neural_female_mixture.flac or mixed_audio/female_mixture.flac depending on repo structure
-      // We'll try a couple of common patterns and let the browser failover if not present.
-      return `${baseURL}mixed_audio/${method}_${mixedName}_mixture.flac`;
+    function buildMixedUrl(mixedName) {
+      // Mixed audio filenames are the same for all methods, e.g. mixed_audio/female_mixture.flac
+      return `${baseURL}mixed_audio/${mixedName}_mixture.flac`;
     }
 
     function buildOutputUrl(method, mixedName) {
@@ -287,11 +278,11 @@
       }
 
       // set mixed audio source and load
-      const mixedUrl = buildMixedUrl(method, mixed);
+      const mixedUrl = buildMixedUrl(mixed);
       console.log('Loading mixed audio from', mixedUrl);
       mixedSource.src = mixedUrl;
       mixedAudio.load();
-      // attempt to autoplay (may be blocked by browsers) — user can click play
+
       // set output audio source and load
       const outputUrl = buildOutputUrl(method, mixed);
       console.log('Loading model output from', outputUrl);
@@ -306,12 +297,11 @@
       snrEl.textContent = spec.snr;
       visqolEl.textContent = spec.visqol;
 
-      // If you have additional model output variants, populate extraOutputs here.
-      // For now we hide the extra outputs container
+      // hide extra outputs container by default
       extraOutputsContainer.style.display = 'none';
       extraOutputs.innerHTML = '';
 
-      // show content section (already visible from method change) — ensure it's visible
+      // show content section
       contentSection.style.display = 'block';
     }
 
