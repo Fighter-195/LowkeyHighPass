@@ -5,13 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Signal Processing Cup 2026 | IIT Kanpur Lowkey High-Pass | Audio Demo with Metrics</title>
   <style>
-    body {
-      font-family: "Inter", sans-serif;
-      background: #0d1117;
-      color: #c9d1d9;
-      margin: 0;
-      padding: 40px;
-    }
+    body { font-family: "Inter", sans-serif; background: #0d1117; color: #c9d1d9; margin: 0; padding: 40px; }
     h1, h2, h3 { text-align: center; margin: 0; }
     h1 { color: #58a6ff; font-size: 2.2em; margin-bottom: 0.2em; }
     h2 { color: #79c0ff; font-size: 1.6em; margin-bottom: 0.2em; }
@@ -38,27 +32,23 @@
     <h3>🎧 Audio Demo with Metrics — choose method + mixed audio</h3>
 
     <div class="controls">
-      <div>
-        <label for="method">Method:</label>
-        <select id="method">
-          <option value="">-- Choose Method --</option>
-          <option value="neural_reverb">Neural Beamformer - Reverb</option>
-          <option value="two_channel_audiozooming">Two Channel AudioZooming</option>
-          <option value="neural_transformer_anechoic">Neural Transformer - Anechoic</option>
-          <option value="sepformer_das_enh">Sepformer - DAS+Enh</option>
-          <option value="sepformer_enh_enh">Sepformer - Enh+Enh</option>
-          <option value="sepformer_mark3">Sepformer - Mark 3</option>
-          <option value="hybeam">HyBeam</option>
-          <option value="student_teacher">Student Teacher</option>
-        </select>
+      <label for="method">Method:</label>
+      <select id="method">
+        <option value="">-- Choose Method --</option>
+        <option value="neural_reverb">Neural Beamformer - Reverb</option>
+        <option value="two_channel_audiozooming">Two Channel AudioZooming</option>
+        <option value="neural_transformer_anechoic">Neural Transformer - Anechoic</option>
+        <option value="sepformer_das_enh">Sepformer - DAS+Enh</option>
+        <option value="sepformer_enh_enh">Sepformer - Enh+Enh</option>
+        <option value="sepformer_mark3">Sepformer - Mark 3</option>
+        <option value="hybeam">HyBeam</option>
+        <option value="student_teacher">Student Teacher</option>
+      </select>
 
-        <label for="mixedFile">Mixed audio:</label>
-        <select id="mixedFile">
-          <option value="">-- Choose Mixed File --</option>
-        </select>
+      <label for="mixedFile">Mixed audio:</label>
+      <select id="mixedFile"><option value="">-- Choose Mixed File --</option></select>
 
-        <button id="loadBtn">Load & Play</button>
-      </div>
+      <button id="loadBtn">Load & Play</button>
     </div>
 
     <div id="contentSection">
@@ -79,20 +69,13 @@
               Your browser does not support the audio element.
             </audio>
           </div>
-
-          <div class="audio-box" id="extraOutputsContainer" style="display:none;">
-            <h2>Additional Model Outputs</h2>
-            <div id="extraOutputs"></div>
-          </div>
         </div>
 
         <div>
           <div class="metrics-box">
             <h2>Specific Metrics</h2>
             <table>
-              <thead>
-                <tr><th>Metric</th><th>Score</th></tr>
-              </thead>
+              <thead><tr><th>Metric</th><th>Score</th></tr></thead>
               <tbody>
                 <tr><td>STOI</td><td class="metric-value" id="stoi">--</td></tr>
                 <tr><td>PESQ</td><td class="metric-value" id="pesq">--</td></tr>
@@ -104,11 +87,8 @@
           <div class="metrics-box">
             <h2>Time Complexity Metrics</h2>
             <table>
-              <thead>
-                <tr><th>Metric</th><th>Value</th></tr>
-              </thead>
+              <thead><tr><th>Metric</th><th>Value</th></tr></thead>
               <tbody>
-                <tr><td>Real-Time Delay</td><td class="metric-value" id="rtDelay">--</td></tr>
                 <tr><td>CPU RAM</td><td class="metric-value" id="cpuRam">--</td></tr>
                 <tr><td>GPU VRAM</td><td class="metric-value" id="gpuVram">--</td></tr>
                 <tr><td>MACs per sec</td><td class="metric-value" id="macsPerSec">--</td></tr>
@@ -122,13 +102,13 @@
   </div>
 
   <script>
-    // base raw GitHub url
+    // base raw GitHub url (change branch if needed)
     const baseURL = "https://raw.githubusercontent.com/ElectronicsClub-IITK/LowkeyHighPass/main/";
 
-    // shared mixed files
+    // shared mixed files — updated to match your repo screenshot
     const mixedFiles = ["female_female", "male_female", "male_male", "male_song"];
 
-    // method-level averaged metrics (use the exact values you provided)
+    // method-level averaged metrics (exact values you provided)
     const methodMetricsData = {
       neural_reverb: { stoi: 0.72, pesq: 1.05, snr: 3.7 },
       two_channel_audiozooming: { stoi: 0.61, pesq: 3.18, snr: 0.0 },
@@ -140,7 +120,7 @@
       student_teacher: { stoi: 0.74, pesq: 1.45, snr: 5.69 }
     };
 
-    // time complexity metrics (use the exact values you provided)
+    // time complexity metrics (exact values you provided)
     const timeComplexityData = {
       neural_reverb: { cpuRam: '0.0 GB', gpuVram: '0.0 GB', macsPerSec: '0.0M', complexity: '0.0' },
       two_channel_audiozooming: { cpuRam: '2.87 MB', gpuVram: 'N/A', macsPerSec: '27.3 M', complexity: 'O (F*M^3)' },
@@ -152,6 +132,9 @@
       student_teacher: { cpuRam: '927.4 MB', gpuVram: '524 MB', macsPerSec: '87354 M', complexity: 'N A' }
     };
 
+    // keep an (empty) specific metrics object so code won't throw if no per-file metrics exist
+    const specificMetricsData = {};
+
     // DOM refs
     const methodSelect = document.getElementById('method');
     const mixedSelect = document.getElementById('mixedFile');
@@ -162,100 +145,84 @@
     const mixedSource = document.getElementById('mixedSource');
     const outputAudio = document.getElementById('outputAudio');
     const outputSource = document.getElementById('outputSource');
-    const extraOutputsContainer = document.getElementById('extraOutputsContainer');
-    const extraOutputs = document.getElementById('extraOutputs');
 
     const stoiEl = document.getElementById('stoi');
     const pesqEl = document.getElementById('pesq');
     const snrEl = document.getElementById('snr');
-    const rtDelayEl = document.getElementById('rtDelay');
     const cpuRamEl = document.getElementById('cpuRam');
     const gpuVramEl = document.getElementById('gpuVram');
     const macsEl = document.getElementById('macsPerSec');
     const complexityEl = document.getElementById('complexity');
 
-    methodSelect.addEventListener('change', onMethodChange);
-    loadBtn.addEventListener('click', onLoadClick);
-
-    function onMethodChange() {
-      const method = methodSelect.value;
+    methodSelect.addEventListener('change', () => {
       mixedSelect.innerHTML = '<option value="">-- Choose Mixed File --</option>';
+      const method = methodSelect.value;
 
-      if (!method) {
-        contentSection.style.display = 'none';
-        return;
-      }
+      if (!method) return contentSection.style.display = 'none';
 
-      mixedFiles.forEach(name => {
-        const label = name.charAt(0).toUpperCase() + name.slice(1);
+      mixedFiles.forEach(m => {
         const opt = document.createElement('option');
-        opt.value = name;
-        opt.textContent = label;
+        opt.value = m;
+        // display nicer label by replacing '_' with ' / '
+        opt.textContent = m.replace(/_/g, ' / ');
         mixedSelect.appendChild(opt);
       });
 
-      // populate method-level metrics immediately
-      const m = methodMetricsData[method] || {};
-      stoiEl.textContent = m.stoi || '--';
-      pesqEl.textContent = m.pesq || '--';
-      snrEl.textContent = m.snr || '--';
+      const m = methodMetricsData[method];
+      stoiEl.textContent = m.stoi;
+      pesqEl.textContent = m.pesq;
+      snrEl.textContent = m.snr;
 
-      const t = timeComplexityData[method] || {};
-      rtDelayEl.textContent = t.rtDelay || '--';
-      cpuRamEl.textContent = t.cpuRam || '--';
-      gpuVramEl.textContent = t.gpuVram || '--';
-      macsEl.textContent = t.macsPerSec || '--';
-      complexityEl.textContent = t.complexity || '--';
+      const t = timeComplexityData[method];
+      cpuRamEl.textContent = t.cpuRam;
+      gpuVramEl.textContent = t.gpuVram;
+      macsEl.textContent = t.macsPerSec;
+      complexityEl.textContent = t.complexity;
 
       contentSection.style.display = 'block';
-    }
+    });
 
     function buildMixedUrl(mixedName) {
-      return `${baseURL}mixed_audio/${mixedName}_mixture.wav`;
+      // mixed files in your repo are .wav and named exactly like `female_female.wav`, etc.
+      return `${baseURL}mixed_audio/${mixedName}.wav`;
     }
 
     function buildOutputUrl(method, mixedName) {
+      // output files are expected as `output_audio/<method>_<mixed>.wav`
       return `${baseURL}output_audio/${method}_${mixedName}.wav`;
     }
 
-    function onLoadClick() {
+    loadBtn.addEventListener('click', () => {
       const method = methodSelect.value;
       const mixed = mixedSelect.value;
-      if (!method || !mixed) {
-        alert('Please choose both a method and a mixed audio file.');
-        return;
-      }
+      if (!method || !mixed) return alert('Select both method and mixed file');
 
-      // set mixed audio
       const mixedUrl = buildMixedUrl(mixed);
       mixedSource.src = mixedUrl;
       mixedAudio.load();
 
-      // set output audio
       const outputUrl = buildOutputUrl(method, mixed);
       outputSource.src = outputUrl;
       outputAudio.load();
 
-      // update specific metrics table if present
       const key = `${method}_${mixed}`;
       const spec = specificMetricsData[key] || { stoi: '--', pesq: '--', snr: '--' };
       stoiEl.textContent = spec.stoi;
       pesqEl.textContent = spec.pesq;
       snrEl.textContent = spec.snr;
 
-      extraOutputsContainer.style.display = 'none';
-      extraOutputs.innerHTML = '';
-
       contentSection.style.display = 'block';
-    }
-
-    // audio error logging
-    [mixedAudio, outputAudio].forEach(a => {
-      a.addEventListener('error', (e) => {
-        console.error('Audio failed to load:', a.id, a.currentSrc, a.error ? a.error.code : 'unknown');
-      });
     });
 
+    // audio error logging (will print the attempted URL and error code)
+    [mixedAudio, outputAudio].forEach(a => {
+      a.addEventListener('error', () => {
+        console.error('Audio failed to load:', a.id, a.currentSrc, a.error ? a.error.code : 'unknown');
+      });
+      a.addEventListener('loadeddata', () => {
+        console.log(a.id, 'loaded successfully:', a.currentSrc);
+      });
+    });
   </script>
 </body>
 </html>
