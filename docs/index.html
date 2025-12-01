@@ -12,81 +12,23 @@
       margin: 0;
       padding: 40px;
     }
-    h1, h2, h3 {
-      text-align: center;
-      margin: 0;
-    }
-    h1 {
-      color: #58a6ff;
-      font-size: 2.2em;
-      margin-bottom: 0.2em;
-    }
-    h2 {
-      color: #79c0ff;
-      font-size: 1.6em;
-      margin-bottom: 0.2em;
-    }
-    h3 {
-      color: #c9d1d9;
-      font-size: 1.1em;
-      margin-bottom: 1em;
-    }
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    .controls {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    select {
-      margin: 10px;
-      padding: 10px;
-      border-radius: 8px;
-      border: none;
-      background: #161b22;
-      color: #c9d1d9;
-      min-width: 200px;
-      cursor: pointer;
-    }
-    .content-wrapper {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      margin-top: 30px;
-    }
-    .audio-box, .metrics-box {
-      padding: 20px;
-      background: #161b22;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(88, 166, 255, 0.12);
-    }
-    .audio-box h2, .metrics-box h2 {
-      color: #58a6ff;
-      margin-top: 0;
-    }
-    audio {
-      width: 100%;
-      margin: 10px 0;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 12px;
-    }
-    th, td {
-      padding: 10px;
-      text-align: left;
-      border-bottom: 1px solid #30363d;
-    }
-    th { color: #58a6ff; }
-    td { color: #c9d1d9; }
+    h1, h2, h3 { text-align: center; margin: 0; }
+    h1 { color: #58a6ff; font-size: 2.2em; margin-bottom: 0.2em; }
+    h2 { color: #79c0ff; font-size: 1.6em; margin-bottom: 0.2em; }
+    h3 { color: #c9d1d9; font-size: 1.1em; margin-bottom: 1em; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .controls { text-align: center; margin-bottom: 30px; }
+    select { margin: 10px; padding: 10px; border-radius: 8px; border: none; background: #161b22; color: #c9d1d9; min-width: 200px; cursor: pointer; }
+    .content-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px; }
+    .audio-box, .metrics-box { padding: 20px; background: #161b22; border-radius: 12px; box-shadow: 0 0 10px rgba(88, 166, 255, 0.12); }
+    .audio-box h2, .metrics-box h2 { color: #58a6ff; margin-top: 0; }
+    audio { width: 100%; margin: 10px 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { padding: 10px; text-align: left; border-bottom: 1px solid #30363d; }
+    th { color: #58a6ff; } td { color: #c9d1d9; }
     .metric-value { font-weight: 600; color: #7ee787; }
     #contentSection { display: none; }
-    @media (max-width: 768px) {
-      .content-wrapper { grid-template-columns: 1fr; }
-      select { min-width: 160px; }
-    }
+    @media (max-width: 768px) { .content-wrapper { grid-template-columns: 1fr; } select { min-width: 160px; } }
   </style>
 </head>
 <body>
@@ -100,11 +42,14 @@
         <label for="method">Method:</label>
         <select id="method">
           <option value="">-- Choose Method --</option>
-          <option value="neural">Neural Beamformer</option>
-          <option value="two_channel">Two Channel Audio Zooming</option>
-          <option value="nested">Nested Beamformer</option>
-          <option value="sepformer">Sepformer</option>
+          <option value="neural_reverb">Neural Beamformer - Reverb</option>
+          <option value="two_channel_audiozooming">Two Channel AudioZooming</option>
+          <option value="neural_transformer_anechoic">Neural Transformer - Anechoic</option>
+          <option value="sepformer_das_enh">Sepformer - DAS+Enh</option>
+          <option value="sepformer_enh_enh">Sepformer - Enh+Enh</option>
+          <option value="sepformer_mark3">Sepformer - Mark 3</option>
           <option value="hybeam">HyBeam</option>
+          <option value="student_teacher">Student Teacher</option>
         </select>
 
         <label for="mixedFile">Mixed audio (same pool for all methods):</label>
@@ -139,7 +84,6 @@
             <h2>Additional Model Outputs</h2>
             <div id="extraOutputs"></div>
           </div>
-
         </div>
 
         <div>
@@ -179,35 +123,49 @@
   </div>
 
   <script>
-    // Base GitHub raw path (update to your real repo if different)
+    // base raw GitHub url
     const baseURL = "https://raw.githubusercontent.com/ElectronicsClub-IITK/LowkeyHighPass/main/";
 
-    // single pool of mixed files used for all methods
+    // shared mixed files
     const mixedFiles = ["female", "male", "water", "song"];
 
-    // specific metrics (example values) - keyed by method_mixed
-    const specificMetricsData = {
-      neural_female: { stoi: 0.85, pesq: 3.2, snr: 12.5, visqol: 4.1 },
-      neural_male:   { stoi: 0.82, pesq: 3.0, snr: 11.8, visqol: 3.9 },
-      two_channel_female: { stoi: 0.5853, pesq: 3.19, snr: 0.0, visqol: 0.0 }
-      // add more keys as you compute them
-    };
-
-    // method-level metrics (example)
+    // method-level averaged metrics (use the exact values you provided)
     const methodMetricsData = {
-      neural: { rtDelay: '50ms', cpuRam: '2.5 GB', gpuVram: '4 GB', macsPerSec: '1.2M', complexity: 'O(n²)' },
-      two_channel: { rtDelay: '10ms', cpuRam: '512 MB', gpuVram: 'N/A', macsPerSec: '200K', complexity: 'O(n)' },
-      nested: { rtDelay: '75ms', cpuRam: '3.2 GB', gpuVram: '6 GB', macsPerSec: '1.8M', complexity: 'O(n² log n)' },
-      sepformer: { rtDelay: '80ms', cpuRam: '1.7 GB', gpuVram: '0.0 GB', macsPerSec: '11.3G', complexity: 'O(L^2*d)' },
-      hybeam: { rtDelay: '30ms', cpuRam: '13.5 MB', gpuVram: '991.23 MB', macsPerSec: '11.2M', complexity: 'O(?)' }
+      neural_reverb: { stoi: 0.72, pesq: 1.05, snr: 3.7 },
+      two_channel_audiozooming: { stoi: 0.61, pesq: 3.18, snr: 0.0 },
+      neural_transformer_anechoic: { stoi: 0.853, pesq: 1.759, snr: 12.46 },
+      sepformer_das_enh: { stoi: 0.814, pesq: 2.655, snr: -0.28 },
+      sepformer_enh_enh: { stoi: 0.761, pesq: 2.077, snr: 6.79 },
+      sepformer_mark3: { stoi: 0.798, pesq: 2.433, snr: 6.70 },
+      hybeam: { stoi: 0.75, pesq: 1.29, snr: 4.56 },
+      student_teacher: { stoi: 0.74, pesq: 1.45, snr: 5.69 }
     };
 
+    // time complexity metrics (use the exact values you provided)
+    const timeComplexityData = {
+      neural_reverb: { cpuRam: '0.0 GB', gpuVram: '0.0 GB', macsPerSec: '0.0M', complexity: '0.0' },
+      two_channel_audiozooming: { cpuRam: '2.87 MB', gpuVram: 'N/A', macsPerSec: '27.3 M', complexity: 'O (F*M^3)' },
+      neural_transformer_anechoic: { cpuRam: '988.118 MB', gpuVram: '770.26 MB', macsPerSec: '216107.67M', complexity: 'O(L^2*d)' },
+      sepformer_das_enh: { cpuRam: '1.7 GB', gpuVram: '0.0 GB', macsPerSec: '11368.87M', complexity: 'O (L^2*d)' },
+      sepformer_enh_enh: { cpuRam: '1.7 GB', gpuVram: '0.0 GB', macsPerSec: '11368.87M', complexity: 'O (L^2*d)' },
+      sepformer_mark3: { cpuRam: '1.2 GB', gpuVram: '0.0 GB', macsPerSec: '10502.66M', complexity: 'O (L^2*d)' },
+      hybeam: { cpuRam: '13.53 MB', gpuVram: '991.23 GB', macsPerSec: '11.2M', complexity: '0.0' },
+      student_teacher: { cpuRam: '927.4 MB', gpuVram: '524 MB', macsPerSec: '87354 M', complexity: 'N A' }
+    };
+
+    // optional per method+mixed specific metrics (fill in more if you have them)
+    const specificMetricsData = {
+      neural_reverb_female: { stoi: 0.85, pesq: 3.2, snr: 12.5, visqol: 4.1 },
+      neural_reverb_male:   { stoi: 0.82, pesq: 3.0, snr: 11.8, visqol: 3.9 },
+      two_channel_audiozooming_female: { stoi: 0.5853, pesq: 3.19, snr: 0.0, visqol: 0.0 }
+    };
+
+    // DOM refs
     const methodSelect = document.getElementById('method');
     const mixedSelect = document.getElementById('mixedFile');
     const loadBtn = document.getElementById('loadBtn');
     const contentSection = document.getElementById('contentSection');
 
-    // audio elements
     const mixedAudio = document.getElementById('mixedAudio');
     const mixedSource = document.getElementById('mixedSource');
     const outputAudio = document.getElementById('outputAudio');
@@ -215,7 +173,6 @@
     const extraOutputsContainer = document.getElementById('extraOutputsContainer');
     const extraOutputs = document.getElementById('extraOutputs');
 
-    // metrics DOM refs
     const stoiEl = document.getElementById('stoi');
     const pesqEl = document.getElementById('pesq');
     const snrEl = document.getElementById('snr');
@@ -231,7 +188,6 @@
 
     function onMethodChange() {
       const method = methodSelect.value;
-      // reset mixed select
       mixedSelect.innerHTML = '<option value="">-- Choose Mixed File --</option>';
 
       if (!method) {
@@ -247,25 +203,27 @@
         mixedSelect.appendChild(opt);
       });
 
-      // show content area so user knows to choose mixed file and load
-      contentSection.style.display = 'block';
-
-      // also populate method-level metrics immediately
+      // populate method-level metrics immediately
       const m = methodMetricsData[method] || {};
-      rtDelayEl.textContent = m.rtDelay || '--';
-      cpuRamEl.textContent = m.cpuRam || '--';
-      gpuVramEl.textContent = m.gpuVram || '--';
-      macsEl.textContent = m.macsPerSec || '--';
-      complexityEl.textContent = m.complexity || '--';
+      stoiEl.textContent = m.stoi || '--';
+      pesqEl.textContent = m.pesq || '--';
+      snrEl.textContent = m.snr || '--';
+
+      const t = timeComplexityData[method] || {};
+      rtDelayEl.textContent = t.rtDelay || '--';
+      cpuRamEl.textContent = t.cpuRam || '--';
+      gpuVramEl.textContent = t.gpuVram || '--';
+      macsEl.textContent = t.macsPerSec || '--';
+      complexityEl.textContent = t.complexity || '--';
+
+      contentSection.style.display = 'block';
     }
 
     function buildMixedUrl(mixedName) {
-      // Mixed audio filenames are the same for all methods, e.g. mixed_audio/female_mixture.flac
       return `${baseURL}mixed_audio/${mixedName}_mixture.flac`;
     }
 
     function buildOutputUrl(method, mixedName) {
-      // e.g. output_audio/neural_female.flac
       return `${baseURL}output_audio/${method}_${mixedName}.flac`;
     }
 
@@ -277,19 +235,17 @@
         return;
       }
 
-      // set mixed audio source and load
+      // set mixed audio
       const mixedUrl = buildMixedUrl(mixed);
-      console.log('Loading mixed audio from', mixedUrl);
       mixedSource.src = mixedUrl;
       mixedAudio.load();
 
-      // set output audio source and load
+      // set output audio
       const outputUrl = buildOutputUrl(method, mixed);
-      console.log('Loading model output from', outputUrl);
       outputSource.src = outputUrl;
       outputAudio.load();
 
-      // update specific metrics if available
+      // update specific metrics table if present
       const key = `${method}_${mixed}`;
       const spec = specificMetricsData[key] || { stoi: '--', pesq: '--', snr: '--', visqol: '--' };
       stoiEl.textContent = spec.stoi;
@@ -297,15 +253,13 @@
       snrEl.textContent = spec.snr;
       visqolEl.textContent = spec.visqol;
 
-      // hide extra outputs container by default
       extraOutputsContainer.style.display = 'none';
       extraOutputs.innerHTML = '';
 
-      // show content section
       contentSection.style.display = 'block';
     }
 
-    // helpful audio error logging
+    // audio error logging
     [mixedAudio, outputAudio].forEach(a => {
       a.addEventListener('error', (e) => {
         console.error('Audio failed to load:', a.id, a.currentSrc, a.error ? a.error.code : 'unknown');
