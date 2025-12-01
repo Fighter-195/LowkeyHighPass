@@ -3,266 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Signal Processing Cup 2026 | IIT Kanpur Lowkey High-Pass | Method Comparison</title>
-  <style>
-    body {
-      font-family: "Inter", sans-serif;
-      background: #0d1117;
-      color: #c9d1d9;
-      margin: 0;
-      padding: 40px;
-    }
-    h1, h2, h3 {
-      text-align: center;
-      margin: 0;
-    }
-    h1 {
-      color: #58a6ff;
-      font-size: 2.5em;
-      margin-bottom: 0.2em;
-    }
-    h2 {
-      color: #79c0ff;
-      font-size: 1.8em;
-      margin-bottom: 0.2em;
-    }
-    h3 {
-      color: #c9d1d9;
-      font-size: 1.3em;
-      margin-bottom: 1em;
-    }
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    .controls {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    select {
-      margin: 10px;
-      padding: 10px 20px;
-      border-radius: 8px;
-      border: none;
-      background: #161b22;
-      color: #c9d1d9;
-      font-size: 16px;
-      min-width: 350px;
-      cursor: pointer;
-    }
-    select:hover {
-      background: #1c2128;
-    }
-    .content-wrapper {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      margin-top: 30px;
-    }
-    .metrics-box {
-      padding: 20px;
-      background: #161b22;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(88, 166, 255, 0.2);
-    }
-    .metrics-box h2 {
-      color: #58a6ff;
-      margin-top: 0;
-      text-align: center;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
-      padding: 12px;
-      text-align: left;
-      border-bottom: 1px solid #30363d;
-    }
-    th {
-      background: #0d1117;
-      color: #58a6ff;
-      font-weight: 600;
-    }
-    td {
-      color: #c9d1d9;
-    }
-    tr:hover {
-      background: #1c2128;
-    }
-    .metric-value {
-      font-weight: 600;
-      color: #7ee787;
-    }
-    #contentSection {
-      display: none;
-    }
-    @media (max-width: 768px) {
-      .content-wrapper {
-        grid-template-columns: 1fr;
-      }
-      select {
-        min-width: 280px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>Signal Processing Cup 2026</h1>
-    <h2>IIT Kanpur : Lowkey High-Pass</h2>
-    <h3>📊 Method Comparison & Performance Metrics</h3>
-
-    <div class="controls">
-      <p>Select a processing method to view its performance metrics.</p>
-      <div>
-        <label for="method">Method:</label>
-        <select id="method">
-          <option value="">-- Choose Method --</option>
-          <option value="neural_reverb">Neural Beamformer - Reverb</option>
-          <option value="two_channel_audiozooming">Two Channel AudioZooming</option>
-          <option value="neural_transformer_anechoic">Neural Transformer - Anechoic</option>
-          <option value="sepformer_das_enh">Sepformer - DAS+Enh</option>
-          <option value="sepformer_enh_enh">Sepformer - Enh+Enh</option>
-          <option value="sepformer_mark3">Sepformer - Mark 3</option>
-          <option value="hybeam">HyBeam</option>
-          <option value="student_teacher">Student Teacher</option>
-        </select>
-      </div>
-    </div>
-
-    <div id="contentSection">
-      <div class="content-wrapper">
-        <div class="metrics-box">
-          <h2>Method Metrics</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Metric</th>
-                <th>Score</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>STOI</td>
-                <td class="metric-value" id="methodStoi">--</td>
-              </tr>
-              <tr>
-                <td>PESQ</td>
-                <td class="metric-value" id="methodPesq">--</td>
-              </tr>
-              <tr>
-                <td>SNR (dB)</td>
-                <td class="metric-value" id="methodSnr">--</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="metrics-box">
-          <h2>Time Complexity Metrics</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Metric</th>
-                <th>Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>CPU RAM</td>
-                <td class="metric-value" id="cpuRam">--</td>
-              </tr>
-              <tr>
-                <td>GPU VRAM</td>
-                <td class="metric-value" id="gpuVram">--</td>
-              </tr>
-              <tr>
-                <td>MACs/s</td>
-                <td class="metric-value" id="macsPerSec">--</td>
-              </tr>
-              <tr>
-                <td>Complexity</td>
-                <td class="metric-value" id="complexity">--</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    const contentSection = document.getElementById("contentSection");
-    const methodSelect = document.getElementById("method");
-
-// Method metrics data (averaged across all interferences for each method)
-const methodMetricsData = {
-  neural_reverb: { stoi: 0.72, pesq: 1.05, snr: 3.7 },
-  two_channel_audiozooming: { stoi: 0.61, pesq: 3.18, snr: 0.0 },
-  neural_transformer_anechoic: { stoi: 0.853, pesq: 1.759, snr: 12.46 },
-  sepformer_das_enh: { stoi: 0.814, pesq: 2.655, snr: -0.28 },
-  sepformer_enh_enh: { stoi: 0.761, pesq: 2.077, snr: 6.79 },
-  sepformer_mark3: { stoi: 0.798, pesq: 2.433, snr: 6.70 },
-  hybeam: { stoi: 0.75, pesq: 1.29, snr: 4.56 },
-  student_teacher: { stoi: 0.74, pesq: 1.45, snr: 5.69 }
-};
-
-// Time complexity metrics data (per method)
-const timeComplexityData = {
-  neural_reverb: { cpuRam: '0.0 GB', gpuVram: '0.0 GB', macsPerSec: '0.0M', complexity: '0.0' },
-  two_channel_audiozooming: { cpuRam: '2.87 MB', gpuVram: 'N/A', macsPerSec: '27.3 M', complexity: 'O (F*M^3)' },
-  neural_transformer_anechoic: { cpuRam: '988.118 MB', gpuVram: '770.26 MB', macsPerSec: '216107.67M', complexity: 'O(L^2*d)' },
-  sepformer_das_enh: { cpuRam: '1.7 GB', gpuVram: '0.0 GB', macsPerSec: '11368.87M', complexity: 'O (L^2*d)' },
-  sepformer_enh_enh: { cpuRam: '1.7 GB', gpuVram: '0.0 GB', macsPerSec: '11368.87M', complexity: 'O (L^2*d)' },
-  sepformer_mark3: { cpuRam: '1.2 GB', gpuVram: '0.0 GB', macsPerSec: '10502.66M', complexity: 'O (L^2*d)' },
-  hybeam: { cpuRam: '13.53 MB', gpuVram: '991.23 GB', macsPerSec: '11.2M', complexity: '0.0' },
-  student_teacher: { cpuRam: '927.4 MB', gpuVram: '524 MB', macsPerSec: '87354 M', complexity: 'N A' }
-};
-
-    methodSelect.addEventListener("change", updateMetrics);
-
-    function updateMetrics() {
-      const method = methodSelect.value;
-      
-      console.log("Method selected:", method);
-      
-      if (!method) {
-        console.log("No method selected, hiding content...");
-        contentSection.style.display = "none";
-        return;
-      }
-
-      // Update method metrics
-      const methodMetrics = methodMetricsData[method] || { stoi: '--', pesq: '--', snr: '--' };
-      
-      document.getElementById("methodStoi").textContent = methodMetrics.stoi;
-      document.getElementById("methodPesq").textContent = methodMetrics.pesq;
-      document.getElementById("methodSnr").textContent = methodMetrics.snr;
-
-      // Update time complexity metrics
-      const timeMetrics = timeComplexityData[method] || { cpuRam: '--', gpuVram: '--', macsPerSec: '--', complexity: '--' };
-      
-      document.getElementById("cpuRam").textContent = timeMetrics.cpuRam;
-      document.getElementById("gpuVram").textContent = timeMetrics.gpuVram;
-      document.getElementById("macsPerSec").textContent = timeMetrics.macsPerSec;
-      document.getElementById("complexity").textContent = timeMetrics.complexity;
-
-      contentSection.style.display = "block";
-    }
-  </script>
-</body>
-</html>
-
-
-
-
-<!--LOADS AUDIO ALSO <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Signal Processing Cup 2026 | IIT Kanpur Lowkey High-Pass | Audio Demo with Metrics</title>
   <style>
     body {
@@ -278,17 +18,17 @@ const timeComplexityData = {
     }
     h1 {
       color: #58a6ff;
-      font-size: 2.5em;
+      font-size: 2.2em;
       margin-bottom: 0.2em;
     }
     h2 {
       color: #79c0ff;
-      font-size: 1.8em;
+      font-size: 1.6em;
       margin-bottom: 0.2em;
     }
     h3 {
       color: #c9d1d9;
-      font-size: 1.3em;
+      font-size: 1.1em;
       margin-bottom: 1em;
     }
     .container {
@@ -306,6 +46,8 @@ const timeComplexityData = {
       border: none;
       background: #161b22;
       color: #c9d1d9;
+      min-width: 200px;
+      cursor: pointer;
     }
     .content-wrapper {
       display: grid;
@@ -313,13 +55,13 @@ const timeComplexityData = {
       gap: 20px;
       margin-top: 30px;
     }
-    .audio-box {
+    .audio-box, .metrics-box {
       padding: 20px;
       background: #161b22;
       border-radius: 12px;
-      box-shadow: 0 0 10px rgba(88, 166, 255, 0.2);
+      box-shadow: 0 0 10px rgba(88, 166, 255, 0.12);
     }
-    .audio-box h2 {
+    .audio-box h2, .metrics-box h2 {
       color: #58a6ff;
       margin-top: 0;
     }
@@ -327,54 +69,23 @@ const timeComplexityData = {
       width: 100%;
       margin: 10px 0;
     }
-    .metrics-box {
-      padding: 20px;
-      background: #161b22;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(88, 166, 255, 0.2);
-      margin-bottom: 20px;
-    }
-    .metrics-box h2 {
-      color: #58a6ff;
-      margin-top: 0;
-      text-align: center;
-    }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 20px;
+      margin-top: 12px;
     }
     th, td {
-      padding: 12px;
+      padding: 10px;
       text-align: left;
       border-bottom: 1px solid #30363d;
     }
-    th {
-      background: #0d1117;
-      color: #58a6ff;
-      font-weight: 600;
-    }
-    td {
-      color: #c9d1d9;
-    }
-    tr:hover {
-      background: #1c2128;
-    }
-    .metric-value {
-      font-weight: 600;
-      color: #7ee787;
-    }
-    #contentSection {
-      display: none;
-    }
-    .metrics-column {
-      display: flex;
-      flex-direction: column;
-    }
+    th { color: #58a6ff; }
+    td { color: #c9d1d9; }
+    .metric-value { font-weight: 600; color: #7ee787; }
+    #contentSection { display: none; }
     @media (max-width: 768px) {
-      .content-wrapper {
-        grid-template-columns: 1fr;
-      }
+      .content-wrapper { grid-template-columns: 1fr; }
+      select { min-width: 160px; }
     }
   </style>
 </head>
@@ -382,10 +93,9 @@ const timeComplexityData = {
   <div class="container">
     <h1>Signal Processing Cup 2026</h1>
     <h2>IIT Kanpur : Lowkey High-Pass</h2>
-    <h3>🎧 Audio Demo with Metrics</h3>
+    <h3>🎧 Audio Demo with Metrics — choose method + mixed audio</h3>
 
     <div class="controls">
-      <p>Select a processing method and interference type to hear results.</p>
       <div>
         <label for="method">Method:</label>
         <select id="method">
@@ -393,22 +103,22 @@ const timeComplexityData = {
           <option value="neural">Neural Beamformer</option>
           <option value="two_channel">Two Channel Audio Zooming</option>
           <option value="nested">Nested Beamformer</option>
+          <option value="sepformer">Sepformer</option>
+          <option value="hybeam">HyBeam</option>
         </select>
 
-        <label for="interference">Interference:</label>
-        <select id="interference">
-          <option value="">-- Choose Interference --</option>
-          <option value="female">Female Speech</option>
-          <option value="male">Male Speech</option>
-          <option value="water">Water</option>
-          <option value="song">Song</option>
+        <label for="mixedFile">Mixed audio (for chosen method):</label>
+        <select id="mixedFile">
+          <option value="">-- Choose Mixed File --</option>
         </select>
+
+        <button id="loadBtn">Load & Play</button>
       </div>
     </div>
 
     <div id="contentSection">
       <div class="content-wrapper">
-        <div class="audio-column">
+        <div>
           <div class="audio-box">
             <h2>Mixed Signal</h2>
             <audio id="mixedAudio" controls>
@@ -416,104 +126,50 @@ const timeComplexityData = {
               Your browser does not support the audio element.
             </audio>
           </div>
+
           <div class="audio-box">
-            <h2>Output Signal</h2>
+            <h2>Model Output (primary)</h2>
             <audio id="outputAudio" controls>
               <source id="outputSource" type="audio/flac">
               Your browser does not support the audio element.
             </audio>
           </div>
-          <div class="metrics-box">
-            <h2>Time Complexity Metrics</h2>
-            <table>
-              <thead>
-                <tr>
-                  <th>Metric</th>
-                  <th>Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Real-Time Delay</td>
-                  <td class="metric-value" id="rtDelay">--</td>
-                </tr>
-                <tr>
-                  <td>CPU RAM</td>
-                  <td class="metric-value" id="cpuRam">--</td>
-                </tr>
-                <tr>
-                  <td>GPU VRAM</td>
-                  <td class="metric-value" id="gpuVram">--</td>
-                </tr>
-                <tr>
-                  <td>MACs per sec</td>
-                  <td class="metric-value" id="macsPerSec">--</td>
-                </tr>
-                <tr>
-                  <td>Complexity</td>
-                  <td class="metric-value" id="complexity">--</td>
-                </tr>
-              </tbody>
-            </table>
+
+          <div class="audio-box" id="extraOutputsContainer" style="display:none;">
+            <h2>Additional Model Outputs</h2>
+            <div id="extraOutputs"></div>
           </div>
+
         </div>
 
-        <div class="metrics-column">
+        <div>
           <div class="metrics-box">
             <h2>Specific Metrics</h2>
             <table>
               <thead>
-                <tr>
-                  <th>Metric</th>
-                  <th>Score</th>
-                </tr>
+                <tr><th>Metric</th><th>Score</th></tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>STOI</td>
-                  <td class="metric-value" id="stoi">--</td>
-                </tr>
-                <tr>
-                  <td>PESQ</td>
-                  <td class="metric-value" id="pesq">--</td>
-                </tr>
-                <tr>
-                  <td>SNR (dB)</td>
-                  <td class="metric-value" id="snr">--</td>
-                </tr>
-                <tr>
-                  <td>ViSQOL</td>
-                  <td class="metric-value" id="visqol">--</td>
-                </tr>
+                <tr><td>STOI</td><td class="metric-value" id="stoi">--</td></tr>
+                <tr><td>PESQ</td><td class="metric-value" id="pesq">--</td></tr>
+                <tr><td>SNR (dB)</td><td class="metric-value" id="snr">--</td></tr>
+                <tr><td>ViSQOL</td><td class="metric-value" id="visqol">--</td></tr>
               </tbody>
             </table>
           </div>
+
           <div class="metrics-box">
-            <h2>Method Metrics</h2>
+            <h2>Time Complexity Metrics</h2>
             <table>
               <thead>
-                <tr>
-                  <th>Metric</th>
-                  <th>Score</th>
-                </tr>
+                <tr><th>Metric</th><th>Value</th></tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>STOI</td>
-                  <td class="metric-value" id="methodStoi">--</td>
-                </tr>
-                <tr>
-                  <td>PESQ</td>
-                  <td class="metric-value" id="methodPesq">--</td>
-                </tr>
-                <tr>
-                  <td>SNR (dB)</td>
-                  <td class="metric-value" id="methodSnr">--</td>
-                </tr>
-                <tr>
-                  <td>ViSQOL</td>
-                  <td class="metric-value" id="methodVisqol">--</td>
-                </tr>
+                <tr><td>Real-Time Delay</td><td class="metric-value" id="rtDelay">--</td></tr>
+                <tr><td>CPU RAM</td><td class="metric-value" id="cpuRam">--</td></tr>
+                <tr><td>GPU VRAM</td><td class="metric-value" id="gpuVram">--</td></tr>
+                <tr><td>MACs per sec</td><td class="metric-value" id="macsPerSec">--</td></tr>
+                <tr><td>Complexity</td><td class="metric-value" id="complexity">--</td></tr>
               </tbody>
             </table>
           </div>
@@ -523,125 +179,149 @@ const timeComplexityData = {
   </div>
 
   <script>
-    const mixedAudio = document.getElementById("mixedAudio");
-    const outputAudio = document.getElementById("outputAudio");
-    const contentSection = document.getElementById("contentSection");
-    const methodSelect = document.getElementById("method");
-    const interferenceSelect = document.getElementById("interference");
+    // Base GitHub raw path (update to your real repo if different)
+    const baseURL = "https://raw.githubusercontent.com/ElectronicsClub-IITK/LowkeyHighPass/main/";
 
-    // Add error handling for audio elements
-    mixedAudio.addEventListener('error', function(e) {
-      console.error('Mixed audio error:', e);
-      console.error('Failed to load:', mixedAudio.src);
-      console.error('Error code:', mixedAudio.error ? mixedAudio.error.code : 'unknown');
-    });
+    // available mixed files per method (filenames are the suffix used in the repo)
+    const mixedFilesPerMethod = {
+      neural: ["female", "male", "water", "song"],
+      two_channel: ["female", "male", "water", "song"],
+      nested: ["female", "male", "water", "song"],
+      sepformer: ["female", "male", "water", "song"],
+      hybeam: ["female", "male", "water", "song"]
+    };
 
-    mixedAudio.addEventListener('loadeddata', function() {
-      console.log('Mixed audio loaded successfully!');
-    });
-
-    outputAudio.addEventListener('error', function(e) {
-      console.error('Output audio error:', e);
-      console.error('Failed to load:', outputAudio.src);
-      console.error('Error code:', outputAudio.error ? outputAudio.error.code : 'unknown');
-    });
-
-    outputAudio.addEventListener('loadeddata', function() {
-      console.log('Output audio loaded successfully!');
-    });
-
-    // Specific metrics data (interference-specific)
+    // specific metrics (example values) - keyed by method_mixed
     const specificMetricsData = {
       neural_female: { stoi: 0.85, pesq: 3.2, snr: 12.5, visqol: 4.1 },
-      neural_male: { stoi: 0.82, pesq: 3.0, snr: 11.8, visqol: 3.9 },
-      neural_water: { stoi: 0.88, pesq: 3.5, snr: 14.2, visqol: 4.3 },
-      neural_song: { stoi: 0.79, pesq: 2.9, snr: 10.5, visqol: 3.7 },
-      two_channel_female: { stoi: 0.5853, pesq: 3.19, snr: 0.0, visqol: 0.0 },
-      two_channel_male: { stoi: 0.6070, pesq: 3.22, snr: 0.0, visqol: 0.0 },
-      two_channel_water: { stoi: 0.6577, pesq: 3.14, snr: 0.0, visqol: 0.0 },
-      two_channel_song: { stoi: 0.6154, pesq: 3.18, snr: 0.0, visqol: 0.0 },
-      nested_female: { stoi: 0.87, pesq: 3.4, snr: 13.2, visqol: 4.2 },
-      nested_male: { stoi: 0.84, pesq: 3.2, snr: 12.5, visqol: 4.0 },
-      nested_water: { stoi: 0.90, pesq: 3.7, snr: 15.0, visqol: 4.5 },
-      nested_song: { stoi: 0.81, pesq: 3.0, snr: 11.0, visqol: 3.8 }
+      neural_male:   { stoi: 0.82, pesq: 3.0, snr: 11.8, visqol: 3.9 },
+      two_channel_female: { stoi: 0.5853, pesq: 3.19, snr: 0.0, visqol: 0.0 }
+      // add more keys as you compute them
     };
 
-    // Method metrics data (averaged across all interferences for each method)
+    // method-level metrics (example)
     const methodMetricsData = {
-      neural: { stoi: 0.835, pesq: 3.15, snr: 12.25, visqol: 4.0 },
-      two_channel: { stoi: 0.6164, pesq: 3.18, snr: 0.0, visqol: 0.0 },
-      nested: { stoi: 0.855, pesq: 3.33, snr: 12.93, visqol: 4.13 }
-    };
-
-    // Time complexity metrics data (per method)
-    const timeComplexityData = {
       neural: { rtDelay: '50ms', cpuRam: '2.5 GB', gpuVram: '4 GB', macsPerSec: '1.2M', complexity: 'O(n²)' },
       two_channel: { rtDelay: '10ms', cpuRam: '512 MB', gpuVram: 'N/A', macsPerSec: '200K', complexity: 'O(n)' },
-      nested: { rtDelay: '75ms', cpuRam: '3.2 GB', gpuVram: '6 GB', macsPerSec: '1.8M', complexity: 'O(n² log n)' }
+      nested: { rtDelay: '75ms', cpuRam: '3.2 GB', gpuVram: '6 GB', macsPerSec: '1.8M', complexity: 'O(n² log n)' },
+      sepformer: { rtDelay: '80ms', cpuRam: '1.7 GB', gpuVram: '0.0 GB', macsPerSec: '11.3G', complexity: 'O(L^2*d)' },
+      hybeam: { rtDelay: '30ms', cpuRam: '13.5 MB', gpuVram: '991.23 MB', macsPerSec: '11.2M', complexity: 'O(?)' }
     };
 
-    interferenceSelect.addEventListener("change", updateAudio);
-    methodSelect.addEventListener("change", updateAudio);
+    const methodSelect = document.getElementById('method');
+    const mixedSelect = document.getElementById('mixedFile');
+    const loadBtn = document.getElementById('loadBtn');
+    const contentSection = document.getElementById('contentSection');
 
-    function updateAudio() {
+    // audio elements
+    const mixedAudio = document.getElementById('mixedAudio');
+    const mixedSource = document.getElementById('mixedSource');
+    const outputAudio = document.getElementById('outputAudio');
+    const outputSource = document.getElementById('outputSource');
+    const extraOutputsContainer = document.getElementById('extraOutputsContainer');
+    const extraOutputs = document.getElementById('extraOutputs');
+
+    // metrics DOM refs
+    const stoiEl = document.getElementById('stoi');
+    const pesqEl = document.getElementById('pesq');
+    const snrEl = document.getElementById('snr');
+    const visqolEl = document.getElementById('visqol');
+    const rtDelayEl = document.getElementById('rtDelay');
+    const cpuRamEl = document.getElementById('cpuRam');
+    const gpuVramEl = document.getElementById('gpuVram');
+    const macsEl = document.getElementById('macsPerSec');
+    const complexityEl = document.getElementById('complexity');
+
+    methodSelect.addEventListener('change', onMethodChange);
+    loadBtn.addEventListener('click', onLoadClick);
+
+    function onMethodChange() {
       const method = methodSelect.value;
-      const interference = interferenceSelect.value;
-      
-      console.log("Method:", method, "Interference:", interference);
-      
-      if (!method || !interference) {
-        console.log("Waiting for both selections...");
+      // reset mixed select
+      mixedSelect.innerHTML = '<option value="">-- Choose Mixed File --</option>';
+
+      if (!method) {
+        contentSection.style.display = 'none';
         return;
       }
-      
-      console.log("Both selected! Proceeding...");
 
-      // GitHub raw URLs
-      const baseURL = "https://raw.githubusercontent.com/ElectronicsClub-IITK/LowkeyHighPass/main/";
-      const mixedURL = `${baseURL}mixed_audio/male_${interference}_mixture.flac`;
-      
-      console.log("Loading mixed audio from:", mixedURL);
-      
-      const mixedSource = document.getElementById("mixedSource");
-      mixedSource.src = mixedURL;
+      const files = mixedFilesPerMethod[method] || [];
+      files.forEach(name => {
+        // show a friendly label
+        const label = name.charAt(0).toUpperCase() + name.slice(1);
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = label;
+        mixedSelect.appendChild(opt);
+      });
+
+      // show content area so user knows to choose mixed file and load
+      contentSection.style.display = 'block';
+
+      // also populate method-level metrics immediately
+      const m = methodMetricsData[method] || {};
+      rtDelayEl.textContent = m.rtDelay || '--';
+      cpuRamEl.textContent = m.cpuRam || '--';
+      gpuVramEl.textContent = m.gpuVram || '--';
+      macsEl.textContent = m.macsPerSec || '--';
+      complexityEl.textContent = m.complexity || '--';
+    }
+
+    function buildMixedUrl(method, mixedName) {
+      // e.g. mixed_audio/neural_female_mixture.flac or mixed_audio/female_mixture.flac depending on repo structure
+      // We'll try a couple of common patterns and let the browser failover if not present.
+      return `${baseURL}mixed_audio/${method}_${mixedName}_mixture.flac`;
+    }
+
+    function buildOutputUrl(method, mixedName) {
+      // e.g. output_audio/neural_female.flac
+      return `${baseURL}output_audio/${method}_${mixedName}.flac`;
+    }
+
+    function onLoadClick() {
+      const method = methodSelect.value;
+      const mixed = mixedSelect.value;
+      if (!method || !mixed) {
+        alert('Please choose both a method and a mixed audio file.');
+        return;
+      }
+
+      // set mixed audio source and load
+      const mixedUrl = buildMixedUrl(method, mixed);
+      console.log('Loading mixed audio from', mixedUrl);
+      mixedSource.src = mixedUrl;
       mixedAudio.load();
-      
-      // Load output audio
-      const outputURL = `${baseURL}output_audio/${method}_${interference}.flac`;
-      console.log("Loading output audio from:", outputURL);
-      
-      const outputSource = document.getElementById("outputSource");
-      outputSource.src = outputURL;
+      // attempt to autoplay (may be blocked by browsers) — user can click play
+      // set output audio source and load
+      const outputUrl = buildOutputUrl(method, mixed);
+      console.log('Loading model output from', outputUrl);
+      outputSource.src = outputUrl;
       outputAudio.load();
 
-      // Update specific metrics (interference-specific)
-      const specificKey = `${method}_${interference}`;
-      const specificMetrics = specificMetricsData[specificKey] || { stoi: '--', pesq: '--', snr: '--', visqol: '--' };
-      
-      document.getElementById("stoi").textContent = specificMetrics.stoi;
-      document.getElementById("pesq").textContent = specificMetrics.pesq;
-      document.getElementById("snr").textContent = specificMetrics.snr;
-      document.getElementById("visqol").textContent = specificMetrics.visqol;
+      // update specific metrics if available
+      const key = `${method}_${mixed}`;
+      const spec = specificMetricsData[key] || { stoi: '--', pesq: '--', snr: '--', visqol: '--' };
+      stoiEl.textContent = spec.stoi;
+      pesqEl.textContent = spec.pesq;
+      snrEl.textContent = spec.snr;
+      visqolEl.textContent = spec.visqol;
 
-      // Update method metrics (method-level averages)
-      const methodMetrics = methodMetricsData[method] || { stoi: '--', pesq: '--', snr: '--', visqol: '--' };
-      
-      document.getElementById("methodStoi").textContent = methodMetrics.stoi;
-      document.getElementById("methodPesq").textContent = methodMetrics.pesq;
-      document.getElementById("methodSnr").textContent = methodMetrics.snr;
-      document.getElementById("methodVisqol").textContent = methodMetrics.visqol;
+      // If you have additional model output variants, populate extraOutputs here.
+      // For now we hide the extra outputs container
+      extraOutputsContainer.style.display = 'none';
+      extraOutputs.innerHTML = '';
 
-      // Update time complexity metrics
-      const timeMetrics = timeComplexityData[method] || { rtDelay: '--', cpuRam: '--', gpuVram: '--', macsPerSec: '--', complexity: '--' };
-      
-      document.getElementById("rtDelay").textContent = timeMetrics.rtDelay;
-      document.getElementById("cpuRam").textContent = timeMetrics.cpuRam;
-      document.getElementById("gpuVram").textContent = timeMetrics.gpuVram;
-      document.getElementById("macsPerSec").textContent = timeMetrics.macsPerSec;
-      document.getElementById("complexity").textContent = timeMetrics.complexity;
-
-      contentSection.style.display = "block";
+      // show content section (already visible from method change) — ensure it's visible
+      contentSection.style.display = 'block';
     }
+
+    // helpful audio error logging
+    [mixedAudio, outputAudio].forEach(a => {
+      a.addEventListener('error', (e) => {
+        console.error('Audio failed to load:', a.id, a.currentSrc, a.error ? a.error.code : 'unknown');
+      });
+    });
+
   </script>
 </body>
-</html> -->
+</html>
