@@ -132,9 +132,6 @@
       student_teacher: { cpuRam: '927.4 MB', gpuVram: '524 MB', macsPerSec: '87354 M', complexity: 'N A' }
     };
 
-    // keep an (empty) specific metrics object so code won't throw if no per-file metrics exist
-    const specificMetricsData = {};
-
     // DOM refs
     const methodSelect = document.getElementById('method');
     const mixedSelect = document.getElementById('mixedFile');
@@ -205,11 +202,6 @@
       outputSource.src = outputUrl;
       outputAudio.load();
 
-      const key = `${method}_${mixed}`;
-      const spec = specificMetricsData[key] || { stoi: '--', pesq: '--', snr: '--' };
-      stoiEl.textContent = spec.stoi;
-      pesqEl.textContent = spec.pesq;
-      snrEl.textContent = spec.snr;
 
       contentSection.style.display = 'block';
     });
