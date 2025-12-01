@@ -67,7 +67,7 @@
           <div class="audio-box">
             <h2>Mixed Signal</h2>
             <audio id="mixedAudio" controls>
-              <source id="mixedSource" type="audio/flac">
+              <source id="mixedSource" type="audio/wav">
               Your browser does not support the audio element.
             </audio>
           </div>
@@ -75,7 +75,7 @@
           <div class="audio-box">
             <h2>Model Output</h2>
             <audio id="outputAudio" controls>
-              <source id="outputSource" type="audio/flac">
+              <source id="outputSource" type="audio/wav">
               Your browser does not support the audio element.
             </audio>
           </div>
@@ -211,11 +211,11 @@
     }
 
     function buildMixedUrl(mixedName) {
-      return `${baseURL}mixed_audio/${mixedName}_mixture.flac`;
+      return `${baseURL}mixed_audio/${mixedName}_mixture.wav`;
     }
 
     function buildOutputUrl(method, mixedName) {
-      return `${baseURL}output_audio/${method}_${mixedName}.flac`;
+      return `${baseURL}output_audio/${method}_${mixedName}.wav`;
     }
 
     function onLoadClick() {
