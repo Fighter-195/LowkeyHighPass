@@ -42,7 +42,7 @@
         <option value="neural_reverb">Neural Beamformer - Reverb</option>
         <option value="two_channel_audiozooming">Two Channel AudioZooming</option>
         <option value="neural_transformer_anechoic">Neural Transformer - Anechoic</option>
-        <option value="sepformer_das_enh">Sepformer - Enh</option>
+        <option value="sepformer_enh">Sepformer - Enh</option>
         <option value="sepformer_enh_enh">Sepformer - Enh+Enh</option>
         <option value="dsenet">DSENET</option>
         <option value="dfsnet">DFSNET</option>
@@ -51,7 +51,13 @@
       </select>
 
       <label for="mixedFile">Mixed audio:</label>
-      <select id="mixedFile"><option value="">-- Choose Mixed File --</option></select>
+      <select id="mixedFile">
+        <option value="">-- Choose Mixed File --</option>
+        <option value="male_female">Male-Female</option>
+        <option value="male_song">Male-Song</option>
+        <option value="male_noise1">Male-Noise1</option>
+        <option value="male_noise2">Male-Noise2</option>
+      </select>
 
       <button id="loadBtn">Load & Play</button>
     </div>
@@ -112,13 +118,12 @@
 
   <script>
     const baseURL = "https://raw.githubusercontent.com/ElectronicsClub-IITK/LowkeyHighPass/main/";
-    const mixedFiles = ["male_female", "male_song", "male_noise1", "male_noise2"];
 
     const methodMetricsData = {
       neural_reverb: { stoi: 0.72, pesq: 1.05, snr: 3.7 },
       two_channel_audiozooming: { stoi: 0.61, pesq: 3.18, snr: 0.0 },
       neural_transformer_anechoic: { stoi: 0.853, pesq: 1.759, snr: 12.46 },
-      sepformer_das_enh: { stoi: 0.814, pesq: 2.655, snr: -0.28 },
+      sepformer_enh: { stoi: 0.814, pesq: 2.655, snr: -0.28 },
       sepformer_enh_enh: { stoi: 0.761, pesq: 2.077, snr: 6.79 },
       dsenet: { stoi: 0.80, pesq: 2.50, snr: 7.50 },
       dfsnet: { stoi: 0.80, pesq: 2.50, snr: 7.50 },
@@ -130,7 +135,7 @@
       neural_reverb: { cpuRam: '0.0 GB', gpuVram: '0.0 GB', macsPerSec: '0.0M', complexity: '0.0' },
       two_channel_audiozooming: { cpuRam: '2.87 MB', gpuVram: 'N/A', macsPerSec: '27.3 M', complexity: 'O (F*M^3)' },
       neural_transformer_anechoic: { cpuRam: '988.118 MB', gpuVram: '770.26 MB', macsPerSec: '216107.67M', complexity: 'O(L^2*d)' },
-      sepformer_das_enh: { cpuRam: '1.7 GB', gpuVram: '0.0 GB', macsPerSec: '11368.87M', complexity: 'O (L^2*d)' },
+      sepformer_enh: { cpuRam: '1.7 GB', gpuVram: '0.0 GB', macsPerSec: '11368.87M', complexity: 'O (L^2*d)' },
       sepformer_enh_enh: { cpuRam: '1.7 GB', gpuVram: '0.0 GB', macsPerSec: '11368.87M', complexity: 'O (L^2*d)' },
       dsenet: { cpuRam: '1.5 GB', gpuVram: '0.0 GB', macsPerSec: '9500M', complexity: 'O (L^2*d)' },
       dfsnet: { cpuRam: '1.5 GB', gpuVram: '0.0 GB', macsPerSec: '9500M', complexity: 'O (L^2*d)' },
@@ -140,15 +145,14 @@
 
     const methodDescriptions = {
       neural_reverb: "Neural Beamformer with reverb handling uses deep learning to focus on target audio sources while managing room acoustics. This approach combines traditional beamforming with neural networks for improved speech extraction.",
-      two_channel_audiozooming: "This uses tiny time/phase differences between mics to spatially focus on the target speaker, giving much better speech isolation and noise supression than any single-mic setup.",
+      two_channel_audiozooming: "Two Channel AudioZooming performs spatial filtering using only two microphones to enhance target audio. This lightweight method is efficient for real-time applications with minimal computational overhead.",
       neural_transformer_anechoic: "Neural Transformer in anechoic conditions leverages self-attention mechanisms for audio separation. Trained on clean recordings, it excels at isolating individual sources with high fidelity.",
-      sepformer_das_enh: "The sep_enh module first separates human speech from the mixture, then enhances the separated signal to clean leftover artifacts, giving higher PESQ/STOI than using separation or enhancement alone.
-",
-      sepformer_enh_enh: "Stacking the enhancement module twice cleans leftover artifacts and makes the human voice clearer and more crisp, increasing PESQ and STOI scores.",
+      sepformer_enh: "Sepformer with enhancement combines transformer-based separation with signal processing techniques. This method balances computational efficiency with separation quality for robust audio extraction.",
+      sepformer_enh_enh: "Sepformer with dual enhancement stages applies transformer-based separation twice for refined audio quality. The cascaded architecture progressively improves source separation at the cost of increased computation.",
       dsenet: "Deep Separation Enhancement Network (DSENET) uses deep learning architectures for robust audio source separation. This method achieves high-quality separation with moderate computational requirements.",
       dfsnet: "Deep Feature Separation Network (DFSNet) extracts and separates audio sources using hierarchical feature learning. This method achieves robust separation across various acoustic conditions with moderate computational requirements.",
-      hybeam: "HyBeam cleans audio using a hybrid approach: delay-and-sum processing combined with an LSTM-based FT-JNF model.",
-      student_teacher: "Student–teacher lets a smaller model mimic a big one: instead of learning from true labels, the student is trained to match the large teacher model’s outputs, making it suitable for edge devices."
+      hybeam: "HyBeam combines hybrid beamforming with deep learning for adaptive spatial filtering. This method dynamically adjusts to changing acoustic environments while maintaining low latency.",
+      student_teacher: "Student-Teacher learning framework distills knowledge from a complex model to a lightweight student network. This approach achieves competitive performance with significantly reduced computational cost."
     };
 
     const methodSelect = document.getElementById('method');
@@ -169,20 +173,12 @@
     const descriptionText = document.getElementById('descriptionText');
 
     methodSelect.addEventListener('change', () => {
-      mixedSelect.innerHTML = '<option value="">-- Choose Mixed File --</option>';
       const method = methodSelect.value;
 
       if (!method) {
         contentSection.style.display = 'none';
         return;
       }
-
-      mixedFiles.forEach(m => {
-        const opt = document.createElement('option');
-        opt.value = m;
-        opt.textContent = m.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('_');
-        mixedSelect.appendChild(opt);
-      });
 
       const m = methodMetricsData[method];
       stoiEl.textContent = m.stoi;
