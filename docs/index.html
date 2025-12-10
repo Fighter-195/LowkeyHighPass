@@ -145,14 +145,14 @@
 
     const methodDescriptions = {
       neural_reverb: "Neural Beamformer with reverb handling uses deep learning to focus on target audio sources while managing room acoustics. This approach combines traditional beamforming with neural networks for improved speech extraction.",
-      two_channel_audiozooming: "Two Channel AudioZooming performs spatial filtering using only two microphones to enhance target audio. This lightweight method is efficient for real-time applications with minimal computational overhead.",
+      two_channel_audiozooming: "This uses tiny time/phase differences between mics to spatially focus on the target speaker, giving much better speech isolation and noise supression than any single-mic setup..",
       neural_transformer_anechoic: "Neural Transformer in anechoic conditions leverages self-attention mechanisms for audio separation. Trained on clean recordings, it excels at isolating individual sources with high fidelity.",
       sepformer_enh: "Sepformer with enhancement combines transformer-based separation with signal processing techniques. This method balances computational efficiency with separation quality for robust audio extraction.",
-      sepformer_enh_enh: "Sepformer with dual enhancement stages applies transformer-based separation twice for refined audio quality. The cascaded architecture progressively improves source separation at the cost of increased computation.",
+      sepformer_enh_enh: "Stacking the enhancement module twice cleans leftover artifacts and makes the human voice clearer and more crisp, increasing PESQ and STOI scores.",
       dsenet: "Deep Separation Enhancement Network (DSENET) uses deep learning architectures for robust audio source separation. This method achieves high-quality separation with moderate computational requirements.",
       dfsnet: "Deep Feature Separation Network (DFSNet) extracts and separates audio sources using hierarchical feature learning. This method achieves robust separation across various acoustic conditions with moderate computational requirements.",
-      hybeam: "HyBeam combines hybrid beamforming with deep learning for adaptive spatial filtering. This method dynamically adjusts to changing acoustic environments while maintaining low latency.",
-      student_teacher: "Student-Teacher learning framework distills knowledge from a complex model to a lightweight student network. This approach achieves competitive performance with significantly reduced computational cost."
+      hybeam: "HyBeam cleans audio using a hybrid approach: delay-and-sum processing combined with an LSTM-based FT-JNF model.",
+      student_teacher: "Student–teacher lets a smaller model mimic a big one: instead of learning from true labels, the student is trained to match the large teacher model’s outputs, making it suitable for edge devices."
     };
 
     const methodSelect = document.getElementById('method');
@@ -195,12 +195,28 @@
       contentSection.style.display = 'block';
     });
 
+    // Map internal method keys to the desired filename prefixes
+    const methodOutputMap = {
+      two_channel_audiozooming: 'two_channel',
+      // default mapping for other methods keeps original method name
+      neural_reverb: 'neural_reverb',
+      neural_transformer_anechoic: 'neural_transformer_anechoic',
+      sepformer_enh: 'sepformer_enh',
+      sepformer_enh_enh: 'sepformer_enh_enh',
+      dsenet: 'dsenet',
+      dfsnet: 'dfsnet',
+      hybeam: 'hybeam',
+      student_teacher: 'student_teacher'
+    };
+
     function buildMixedUrl(mixedName) {
       return `${baseURL}mixed_audio/${mixedName}.wav`;
     }
 
     function buildOutputUrl(method, mixedName) {
-      return `${baseURL}output_audio/${method}_${mixedName}.wav`;
+      // use mapped prefix if available, otherwise fallback to method
+      const prefix = methodOutputMap[method] || method;
+      return `${baseURL}output_audio/${prefix}_${mixedName}.wav`;
     }
 
     loadBtn.addEventListener('click', () => {
