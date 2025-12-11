@@ -44,9 +44,7 @@
         <option value="neural_transformer_anechoic">Neural Transformer - Anechoic</option>
         <option value="sepformer_enh">Sepformer - Enh</option>
         <option value="sepformer_enh_enh">Sepformer - Enh+Enh</option>
-        <!-- renamed display text, keep value 'dsenet' so it uses dsenet_* filenames -->
         <option value="dsenet">DSENet_DeepFilterNET</option>
-        <!-- new method -->
         <option value="dsenet_final">DSENet - Final</option>
         <option value="dfsnet">DFSNET</option>
         <option value="hybeam">HyBeam</option>
@@ -56,10 +54,6 @@
       <label for="mixedFile">Mixed audio:</label>
       <select id="mixedFile">
         <option value="">-- Choose Mixed File --</option>
-        <option value="male_female">Male-Female</option>
-        <option value="male_song">Male-Song</option>
-        <option value="male_noise1">Male-Noise1</option>
-        <option value="male_noise2">Male-Noise2</option>
       </select>
 
       <button id="loadBtn">Load & Play</button>
@@ -122,15 +116,31 @@
   <script>
     const baseURL = "https://raw.githubusercontent.com/ElectronicsClub-IITK/LowkeyHighPass/main/";
 
+    // Per-method list of mixed audio filenames (without extension).
+    // These live at `mixed_audio/<method>/<name>.wav`.
+    const methodMixedMap = {
+      neural_reverb: ['male_female', 'male_noise1', 'room_speech'],
+      two_channel_audiozooming: ['male_female', 'male_song', 'two_mic_scene'],
+      neural_transformer_anechoic: ['male_female', 'anechoic_clean1'],
+      sepformer_enh: ['male_female', 'male_noise2'],
+      sepformer_enh_enh: ['male_female', 'male_noise2', 'double_enh_test'],
+      dsenet: ['male_noise1', 'male_noise2', 'male_song'],
+      dsenet_final: ['male_noise1', 'final_mix_01'],
+      dfsnet: ['male_female', 'dfs_test1'],
+      hybeam: ['hybeam_scene1'],
+      student_teacher: ['student_mix1', 'male_female']
+    };
+
+    // Fallback mixed files (root folder mixed_audio/<name>.wav)
+    const defaultMixedList = ['male_female', 'male_song', 'male_noise1', 'male_noise2'];
+
     const methodMetricsData = {
       neural_reverb: { stoi: 0.811, pesq: 1.269, snr: 3.114 },
       two_channel_audiozooming: { stoi: 0.61, pesq: 3.18, snr: 0.0 },
       neural_transformer_anechoic: { stoi: 0.853, pesq: 1.759, snr: 12.46 },
       sepformer_enh: { stoi: 0.814, pesq: 2.655, snr: -0.28 },
       sepformer_enh_enh: { stoi: 0.761, pesq: 2.077, snr: 6.79 },
-      // keep the same metric keys for dsenet (display name changed)
       dsenet: { stoi: 0.83, pesq: 1.43, snr: 0.3 },
-      // new method: DSENet - Final (copy of dsenet metrics as placeholder)
       dsenet_final: { stoi: 0.812, pesq: 1.641, snr: 30.645 },
       dfsnet: { stoi: 0.80, pesq: 2.50, snr: 7.50 },
       hybeam: { stoi: 0.75, pesq: 1.29, snr: 4.56 },
@@ -143,9 +153,7 @@
       neural_transformer_anechoic: { cpuRam: '988.118 MB', gpuVram: '770.26 MB', macsPerSec: '216107.67M', complexity: 'O(L^2*d)' },
       sepformer_enh: { cpuRam: '1.7 GB', gpuVram: '0.0 GB', macsPerSec: '11368.87M', complexity: 'O (L^2*d)' },
       sepformer_enh_enh: { cpuRam: '1.7 GB', gpuVram: '0.0 GB', macsPerSec: '11368.87M', complexity: 'O (L^2*d)' },
-      // keep DSENet_DeepFilterNET timing using same keys (dsenet)
       dsenet: { cpuRam: 'N/A', gpuVram: '224.19 MB', macsPerSec: '3.63M', complexity: 'O (L^2*d)' },
-      // DSENet - Final timing (placeholder)
       dsenet_final: { cpuRam: '1.6 GB', gpuVram: '0.0 GB', macsPerSec: '0.873M', complexity: 'O (L^2*d)' },
       dfsnet: { cpuRam: '1.5 GB', gpuVram: '0.0 GB', macsPerSec: '9500M', complexity: 'O (L^2*d)' },
       hybeam: { cpuRam: '13.53 MB', gpuVram: '991.23 GB', macsPerSec: '11.2M', complexity: '0.0' },
@@ -158,10 +166,8 @@
       neural_transformer_anechoic: "Neural Transformer in anechoic conditions leverages self-attention mechanisms for audio separation. Trained on clean recordings, it excels at isolating individual sources with high fidelity.",
       sepformer_enh: "Sepformer with enhancement combines transformer-based separation with signal processing techniques. This method balances computational efficiency with separation quality for robust audio extraction.",
       sepformer_enh_enh: "Stacking the enhancement module twice cleans leftover artifacts and makes the human voice clearer and more crisp, increasing PESQ and STOI scores.",
-      // show the new display string for the renamed method in the description map
       dsenet: "DSENet_DeepFilterNET: DeepFilter-style architecture focused on separation + filtering. Uses the dsenet_* output audio pairs (e.g. dsenet_male_noise1.wav).",
       dsenet_final: "DSENet - Final: final/production variant of DSENet. Uses dsenet_final_* output audio pairs (e.g. dsenet_final_male_noise1.wav).",
-      dsenet_placeholder: "placeholder",
       dfsnet: "Deep Feature Separation Network (DFSNet) extracts and separates audio sources using hierarchical feature learning. This method achieves robust separation across various acoustic conditions with moderate computational requirements.",
       hybeam: "HyBeam cleans audio using a hybrid approach: delay-and-sum processing combined with an LSTM-based FT-JNF model.",
       student_teacher: "Student–teacher lets a smaller model mimic a big one: instead of learning from true labels, the student is trained to match the large teacher model’s outputs, making it suitable for edge devices."
@@ -184,24 +190,86 @@
     const complexityEl = document.getElementById('complexity');
     const descriptionText = document.getElementById('descriptionText');
 
+    const methodOutputMap = {
+      two_channel_audiozooming: 'two_channel',
+      dsenet: 'dsenet',
+      dsenet_final: 'dsenet_final',
+      neural_reverb: 'neural_reverb',
+      neural_transformer_anechoic: 'neural_transformer_anechoic',
+      sepformer_enh: 'sepformer_enh',
+      sepformer_enh_enh: 'sepformer_enh_enh',
+      dfsnet: 'dfsnet',
+      hybeam: 'hybeam',
+      student_teacher: 'student_teacher'
+    };
+
+    // Owner token for root fallback folder
+    const ROOT_OWNER = '__root';
+
+    // Populate mixed select for a given method.
+    function populateMixedForMethod(method) {
+      mixedSelect.innerHTML = '';
+      const headerOpt = document.createElement('option');
+      headerOpt.value = '';
+      headerOpt.textContent = '-- Choose Mixed File --';
+      mixedSelect.appendChild(headerOpt);
+
+      // if the method has its own list -> owner is method and files live in mixed_audio/<method>/
+      // otherwise fall back to default list and use the root folder mixed_audio/<name>.wav
+      const hasOwn = Array.isArray(methodMixedMap[method]) && methodMixedMap[method].length > 0;
+      const owner = hasOwn ? method : ROOT_OWNER;
+      const list = hasOwn ? methodMixedMap[method] : defaultMixedList;
+
+      if (!list || list.length === 0) {
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = '-- No mixed available --';
+        mixedSelect.appendChild(opt);
+        mixedSelect.disabled = true;
+        return;
+      }
+
+      mixedSelect.disabled = false;
+      for (const mixedName of list) {
+        const opt = document.createElement('option');
+        // value encodes owner so we can build correct URLs later
+        opt.value = `${owner}||${mixedName}`;
+        opt.textContent = mixedName;
+        mixedSelect.appendChild(opt);
+      }
+    }
+
+    // Build mixed audio URL: if owner === ROOT_OWNER -> mixed_audio/<name>.wav
+    // otherwise -> mixed_audio/<owner>/<name>.wav
+    function buildMixedUrlFor(owner, mixedName) {
+      if (owner === ROOT_OWNER) {
+        return `${baseURL}mixed_audio/${mixedName}.wav`;
+      } else {
+        return `${baseURL}mixed_audio/${owner}/${mixedName}.wav`;
+      }
+    }
+
+    // Build output audio URL (keeps your existing flat output structure)
+    function buildOutputUrlFor(method, mixedName) {
+      const prefix = methodOutputMap[method] || method;
+      return `${baseURL}output_audio/${prefix}_${mixedName}.wav`;
+    }
+
     methodSelect.addEventListener('change', () => {
       const method = methodSelect.value;
 
       if (!method) {
         contentSection.style.display = 'none';
+        mixedSelect.innerHTML = '<option value="">-- Choose Mixed File --</option>';
         return;
       }
 
+      populateMixedForMethod(method);
+
       const m = methodMetricsData[method];
-      if (m) {
-        stoiEl.textContent = m.stoi;
-        pesqEl.textContent = m.pesq;
-        snrEl.textContent = m.snr;
-      } else {
-        stoiEl.textContent = '--';
-        pesqEl.textContent = '--';
-        snrEl.textContent = '--';
-      }
+      stoiEl.textContent = m ? m.stoi : '--';
+      pesqEl.textContent = m ? m.pesq : '--';
+      snrEl.textContent = m ? m.snr : '--';
 
       const t = timeComplexityData[method];
       cpuRamEl.textContent = t ? t.cpuRam : '--';
@@ -213,40 +281,21 @@
       contentSection.style.display = 'block';
     });
 
-    // Map internal method keys to the desired filename prefixes
-    // Important: DSENet_DeepFilterNET is displayed but value is 'dsenet' so it will map to 'dsenet' filenames
-    const methodOutputMap = {
-      two_channel_audiozooming: 'two_channel',
-      dsenet: 'dsenet',               // DSENet_DeepFilterNET uses dsenet_* filenames
-      dsenet_final: 'dsenet_final',   // DSENet - Final uses dsenet_final_* filenames
-      // default mapping for other methods keeps original method name
-      neural_reverb: 'neural_reverb',
-      neural_transformer_anechoic: 'neural_transformer_anechoic',
-      sepformer_enh: 'sepformer_enh',
-      sepformer_enh_enh: 'sepformer_enh_enh',
-      dfsnet: 'dfsnet',
-      hybeam: 'hybeam',
-      student_teacher: 'student_teacher'
-    };
-
-    function buildMixedUrl(mixedName) {
-      return `${baseURL}mixed_audio/${mixedName}.wav`;
-    }
-
-    function buildOutputUrl(method, mixedName) {
-      // use mapped prefix if available, otherwise fallback to method
-      const prefix = methodOutputMap[method] || method;
-      return `${baseURL}output_audio/${prefix}_${mixedName}.wav`;
-    }
-
     loadBtn.addEventListener('click', () => {
       const method = methodSelect.value;
-      const mixed = mixedSelect.value;
-      if (!method || !mixed) return alert('Select both method and mixed file');
+      const mixedValue = mixedSelect.value;
+      if (!method) return alert('Select a method first');
+      if (!mixedValue) return alert('Select a mixed file');
 
-      mixedSource.src = buildMixedUrl(mixed);
+      // mixedValue is encoded as "<owner>||<mixedName>"
+      const [owner, mixedName] = mixedValue.split('||');
+      const mixedUrl = buildMixedUrlFor(owner, mixedName);
+      const outputUrl = buildOutputUrlFor(method, mixedName);
+
+      mixedSource.src = mixedUrl;
       mixedAudio.load();
-      outputSource.src = buildOutputUrl(method, mixed);
+
+      outputSource.src = outputUrl;
       outputAudio.load();
 
       contentSection.style.display = 'block';
@@ -260,6 +309,10 @@
         console.log(a.id, 'loaded successfully:', a.currentSrc);
       });
     });
+
+    // Optionally set a default method on load
+    // methodSelect.value = 'dsenet';
+    // methodSelect.dispatchEvent(new Event('change'));
   </script>
 </body>
 </html>
