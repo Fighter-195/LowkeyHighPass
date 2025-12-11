@@ -97,7 +97,7 @@
               <tbody>
                 <tr><td>STOI</td><td class="metric-value" id="stoi">--</td></tr>
                 <tr><td>PESQ</td><td class="metric-value" id="pesq">--</td></tr>
-                <tr><td>SNR (dB)</td><td class="metric-value" id="snr">--</td></tr>
+                <tr><td>SI-SDR (dB)</td><td class="metric-value" id="snr">--</td></tr>
               </tbody>
             </table>
           </div>
@@ -129,10 +129,10 @@
       sepformer_enh: { stoi: 0.814, pesq: 2.655, snr: -0.28 },
       sepformer_enh_enh: { stoi: 0.761, pesq: 2.077, snr: 6.79 },
       // keep the same metric keys for dsenet (display name changed)
-      dsenet: { stoi: 0.80, pesq: 2.50, snr: 7.50 },
+      dsenet: { stoi: 0.829, pesq: 1.430, snr: 0.30 },
       // new method: DSENet - Final (copy of dsenet metrics as placeholder)
-      dsenet_final: { stoi: 0.81, pesq: 2.55, snr: 8.00 },
-      dfsnet: { stoi: 0.80, pesq: 2.50, snr: 7.50 },
+      dsenet_final: { stoi: 0.8123, pesq: 1.6418, snr: 30.645 },
+      dfsnet: { stoi: 0, pesq: 0, snr: 0 },
       hybeam: { stoi: 0.75, pesq: 1.29, snr: 4.56 },
       student_teacher: { stoi: 0.74, pesq: 1.45, snr: 5.69 }
     };
@@ -144,9 +144,9 @@
       sepformer_enh: { cpuRam: '1.7 GB', gpuVram: '0.0 GB', macsPerSec: '11368.87M', complexity: 'O (L^2*d)' },
       sepformer_enh_enh: { cpuRam: '1.7 GB', gpuVram: '0.0 GB', macsPerSec: '11368.87M', complexity: 'O (L^2*d)' },
       // keep DSENet_DeepFilterNET timing using same keys (dsenet)
-      dsenet: { cpuRam: '1.5 GB', gpuVram: '0.0 GB', macsPerSec: '9500M', complexity: 'O (L^2*d)' },
+      dsenet: { cpuRam: '1.5 GB', gpuVram: '224.19 MB', macsPerSec: '969.4M', complexity: 'O (L^2*d)' },
       // DSENet - Final timing (placeholder)
-      dsenet_final: { cpuRam: '1.6 GB', gpuVram: '0.0 GB', macsPerSec: '9800M', complexity: 'O (L^2*d)' },
+      dsenet_final: { cpuRam: '0 GB', gpuVram: '0.0 GB', macsPerSec: '438.4M', complexity: 'O ' },
       dfsnet: { cpuRam: '1.5 GB', gpuVram: '0.0 GB', macsPerSec: '9500M', complexity: 'O (L^2*d)' },
       hybeam: { cpuRam: '13.53 MB', gpuVram: '991.23 GB', macsPerSec: '11.2M', complexity: '0.0' },
       student_teacher: { cpuRam: '927.4 MB', gpuVram: '524 MB', macsPerSec: '87354 M', complexity: 'N A' }
@@ -155,7 +155,8 @@
     const methodDescriptions = {
       neural_reverb: "Neural Beamformer with reverb handling uses deep learning to focus on target audio sources while managing room acoustics. This approach combines traditional beamforming with neural networks for improved speech extraction.",
       two_channel_audiozooming: "This uses tiny time/phase differences between mics to spatially focus on the target speaker, giving much better speech isolation and noise supression than any single-mic setup.",
-      neural_transformer_anechoic: "Neural Transformer in anechoic conditions leverages self-attention mechanisms for audio separation. Trained on clean recordings, it excels at isolating individual sources with high fidelity.",
+      neural_transformer_anechoic: "Our Neural Transformer Anechoic model uses cosIPD + sinIPD for stable phase learning and employs chunked multi-head attention to capture long-range spatial–spectral cues, enabling more accurate direction-aware masking and target speech separation than the original recurrent setup.
+",
       sepformer_enh: "Sepformer with enhancement combines transformer-based separation with signal processing techniques. This method balances computational efficiency with separation quality for robust audio extraction.",
       sepformer_enh_enh: "Stacking the enhancement module twice cleans leftover artifacts and makes the human voice clearer and more crisp, increasing PESQ and STOI scores.",
       // show the new display string for the renamed method in the description map
