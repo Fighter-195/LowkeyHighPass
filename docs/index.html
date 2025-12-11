@@ -103,7 +103,7 @@
               <tbody>
                 <tr><td>CPU RAM</td><td class="metric-value" id="cpuRam">--</td></tr>
                 <tr><td>GPU VRAM</td><td class="metric-value" id="gpuVram">--</td></tr>
-                <tr><td>MACs per sec</td><td class="metric-value" id="macsPerSec">--</td></tr>
+                <tr><td>MACs</td><td class="metric-value" id="macsPerSec">--</td></tr>
                 <tr><td>Complexity</td><td class="metric-value" id="complexity">--</td></tr>
               </tbody>
             </table>
@@ -128,13 +128,13 @@
     const defaultMixedList = ['male_female', 'male_song', 'male_noise1', 'male_noise2'];
 
     const methodMetricsData = {
-      neural_reverb: { stoi: 0.811, pesq: 1.269, snr: 3.114 },
+      neural_reverb: { stoi: 0.72, pesq: 1.05, snr: 3.70 },
       two_channel_audiozooming: { stoi: 0.61, pesq: 3.18, snr: 0.0 },
       neural_transformer_anechoic: { stoi: 0.853, pesq: 1.759, snr: 12.46 },
       sepformer_enh: { stoi: 0.814, pesq: 2.655, snr: -0.28 },
       sepformer_enh_enh: { stoi: 0.761, pesq: 2.077, snr: 6.79 },
       dsenet: { stoi: 0.83, pesq: 1.43, snr: 0.3 },
-      dsenet_final: { stoi: 0.812, pesq: 1.641, snr: 30.645 },
+      dsenet_final: { stoi: 0.853, pesq: 1.759, snr: 10.72 },
       dfsnet: { stoi: 0.80, pesq: 2.50, snr: 7.50 },
       hybeam: { stoi: 0.75, pesq: 1.29, snr: 4.56 },
       student_teacher: { stoi: 0.74, pesq: 1.45, snr: 5.69 }
@@ -143,7 +143,7 @@
     const timeComplexityData = {
       neural_reverb: { cpuRam: '0.0 GB', gpuVram: '0.0 GB', macsPerSec: '0.76M', complexity: '0.0' },
       two_channel_audiozooming: { cpuRam: '2.87 MB', gpuVram: 'N/A', macsPerSec: '27.3 M', complexity: 'O (F*M^3)' },
-      neural_transformer_anechoic: { cpuRam: '964.31 MB', gpuVram: '268.25 MB', macsPerSec: '443317.08M', complexity: 'O(L^2*d)' },
+      neural_transformer_anechoic: { cpuRam: '964.31 MB', gpuVram: '268.25 MB', macsPerSec: '5.7M', complexity: 'O(L^2*d)' },
       sepformer_enh: { cpuRam: '1.7 GB', gpuVram: '0.0 GB', macsPerSec: '11368.87M', complexity: 'O (L^2*d)' },
       sepformer_enh_enh: { cpuRam: '1.7 GB', gpuVram: '0.0 GB', macsPerSec: '11368.87M', complexity: 'O (L^2*d)' },
       dsenet: { cpuRam: 'N/A', gpuVram: '224.19 MB', macsPerSec: '3.63M', complexity: 'O (L^2*d)' },
