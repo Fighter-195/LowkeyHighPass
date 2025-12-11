@@ -97,7 +97,7 @@
               <tbody>
                 <tr><td>STOI</td><td class="metric-value" id="stoi">--</td></tr>
                 <tr><td>PESQ</td><td class="metric-value" id="pesq">--</td></tr>
-                <tr><td>SNR (dB)</td><td class="metric-value" id="snr">--</td></tr>
+                <tr><td>SI-SDR (dB)</td><td class="metric-value" id="snr">--</td></tr>
               </tbody>
             </table>
           </div>
@@ -123,30 +123,30 @@
     const baseURL = "https://raw.githubusercontent.com/ElectronicsClub-IITK/LowkeyHighPass/main/";
 
     const methodMetricsData = {
-      neural_reverb: { stoi: 0.72, pesq: 1.05, snr: 3.7 },
+      neural_reverb: { stoi: 0.811, pesq: 1.269, snr: 3.114 },
       two_channel_audiozooming: { stoi: 0.61, pesq: 3.18, snr: 0.0 },
       neural_transformer_anechoic: { stoi: 0.853, pesq: 1.759, snr: 12.46 },
       sepformer_enh: { stoi: 0.814, pesq: 2.655, snr: -0.28 },
       sepformer_enh_enh: { stoi: 0.761, pesq: 2.077, snr: 6.79 },
       // keep the same metric keys for dsenet (display name changed)
-      dsenet: { stoi: 0.80, pesq: 2.50, snr: 7.50 },
+      dsenet: { stoi: 0.83, pesq: 1.43, snr: 0.3 },
       // new method: DSENet - Final (copy of dsenet metrics as placeholder)
-      dsenet_final: { stoi: 0.81, pesq: 2.55, snr: 8.00 },
+      dsenet_final: { stoi: 0.812, pesq: 1.641, snr: 30.645 },
       dfsnet: { stoi: 0.80, pesq: 2.50, snr: 7.50 },
       hybeam: { stoi: 0.75, pesq: 1.29, snr: 4.56 },
       student_teacher: { stoi: 0.74, pesq: 1.45, snr: 5.69 }
     };
 
     const timeComplexityData = {
-      neural_reverb: { cpuRam: '0.0 GB', gpuVram: '0.0 GB', macsPerSec: '0.0M', complexity: '0.0' },
+      neural_reverb: { cpuRam: '0.0 GB', gpuVram: '0.0 GB', macsPerSec: '0.76M', complexity: '0.0' },
       two_channel_audiozooming: { cpuRam: '2.87 MB', gpuVram: 'N/A', macsPerSec: '27.3 M', complexity: 'O (F*M^3)' },
       neural_transformer_anechoic: { cpuRam: '988.118 MB', gpuVram: '770.26 MB', macsPerSec: '216107.67M', complexity: 'O(L^2*d)' },
       sepformer_enh: { cpuRam: '1.7 GB', gpuVram: '0.0 GB', macsPerSec: '11368.87M', complexity: 'O (L^2*d)' },
       sepformer_enh_enh: { cpuRam: '1.7 GB', gpuVram: '0.0 GB', macsPerSec: '11368.87M', complexity: 'O (L^2*d)' },
       // keep DSENet_DeepFilterNET timing using same keys (dsenet)
-      dsenet: { cpuRam: '1.5 GB', gpuVram: '0.0 GB', macsPerSec: '9500M', complexity: 'O (L^2*d)' },
+      dsenet: { cpuRam: 'N/A', gpuVram: '224.19 MB', macsPerSec: '3.63M', complexity: 'O (L^2*d)' },
       // DSENet - Final timing (placeholder)
-      dsenet_final: { cpuRam: '1.6 GB', gpuVram: '0.0 GB', macsPerSec: '9800M', complexity: 'O (L^2*d)' },
+      dsenet_final: { cpuRam: '1.6 GB', gpuVram: '0.0 GB', macsPerSec: '0.873M', complexity: 'O (L^2*d)' },
       dfsnet: { cpuRam: '1.5 GB', gpuVram: '0.0 GB', macsPerSec: '9500M', complexity: 'O (L^2*d)' },
       hybeam: { cpuRam: '13.53 MB', gpuVram: '991.23 GB', macsPerSec: '11.2M', complexity: '0.0' },
       student_teacher: { cpuRam: '927.4 MB', gpuVram: '524 MB', macsPerSec: '87354 M', complexity: 'N A' }
