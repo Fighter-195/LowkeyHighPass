@@ -5,108 +5,453 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Signal Processing Cup 2026 | IIT Kanpur Lowkey High-Pass | Audio Demo with Metrics</title>
   <style>
-    body { font-family: "Inter", sans-serif; background: #0d1117; color: #c9d1d9; margin: 0; padding: 40px; }
-    h1, h2, h3 { text-align: center; margin: 0; }
-    h1 { color: #58a6ff; font-size: 2.2em; margin-bottom: 0.2em; }
-    h2 { color: #79c0ff; font-size: 1.6em; margin-bottom: 0.2em; }
-    h3 { color: #c9d1d9; font-size: 1.1em; margin-bottom: 1em; }
+    body { 
+      font-family: "Inter", "Segoe UI", sans-serif; 
+      background: #e8f4f8; 
+      color: #1e293b; 
+      margin: 0; 
+      padding: 40px 20px; 
+      line-height: 1.7; 
+      min-height: 100vh; 
+    }
+    h1, h2, h3 { margin: 0; font-weight: 600; }
+    h1 { 
+      color: #0f172a; 
+      font-size: 2.5em; 
+      margin-bottom: 0.3em; 
+      text-align: center; 
+    }
+    h2 { 
+      color: #334155; 
+      font-size: 1.3em; 
+      margin-bottom: 1em; 
+      text-align: center; 
+      font-weight: 500; 
+    }
     .container { max-width: 1200px; margin: 0 auto; }
-    .controls { text-align: center; margin-bottom: 30px; }
-    select { margin: 10px; padding: 10px; border-radius: 8px; border: none; background: #161b22; color: #c9d1d9; min-width: 200px; cursor: pointer; }
-    button { margin: 10px; padding: 10px 20px; border-radius: 8px; border: none; background: #238636; color: white; cursor: pointer; font-weight: 600; }
-    button:hover { background: #2ea043; }
-    .method-description { text-align: center; margin: 20px auto 0; max-width: 800px; padding: 15px 20px; background: #161b22; border-radius: 8px; border-left: 3px solid #58a6ff; }
-    .method-description p { margin: 0; color: #8b949e; font-size: 0.95em; line-height: 1.5; }
-    .content-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px; }
-    .audio-box, .metrics-box { padding: 20px; background: #161b22; border-radius: 12px; box-shadow: 0 0 10px rgba(88, 166, 255, 0.12); }
-    .audio-box h2, .metrics-box h2 { color: #58a6ff; margin-top: 0; }
-    audio { width: 100%; margin: 10px 0; }
-    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-    th, td { padding: 10px; text-align: left; border-bottom: 1px solid #30363d; }
-    th { color: #58a6ff; } td { color: #c9d1d9; }
-    .metric-value { font-weight: 600; color: #7ee787; }
+    
+    .header-section { 
+      background: white; 
+      padding: 40px; 
+      border-radius: 8px; 
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
+      margin-bottom: 30px; 
+    }
+    
+    .section-grid { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); 
+      gap: 25px; 
+      margin-bottom: 30px; 
+    }
+    
+    .section-card { 
+      background: white; 
+      padding: 30px; 
+      border-radius: 8px; 
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
+      border-top: 4px solid #3b82f6;
+    }
+    
+    .section-title { 
+      color: #1e40af; 
+      font-size: 1.4em; 
+      margin-bottom: 18px; 
+      font-weight: 600;
+      display: flex; 
+      align-items: center; 
+      gap: 10px; 
+    }
+    
+    .section-icon { font-size: 1.2em; }
+    
+    .section-text { 
+      color: #475569; 
+      font-size: 0.98em; 
+      line-height: 1.7; 
+      margin-bottom: 15px; 
+    }
+    
+    .highlight-box { 
+      background: #f0f9ff; 
+      padding: 18px; 
+      border-radius: 6px; 
+      border-left: 4px solid #3b82f6; 
+      margin: 18px 0; 
+    }
+    
+    .stats-grid { 
+      display: flex;
+      justify-content: center;
+      gap: 12px; 
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+    
+    .stat-item { 
+      text-align: center; 
+      padding: 10px 14px; 
+      background: #f8fafc; 
+      border-radius: 6px; 
+      border: 1px solid #e2e8f0;
+      min-width: 90px;
+    }
+    
+    .stat-value { 
+      font-size: 1.4em; 
+      font-weight: 700; 
+      color: #1e40af; 
+    }
+    
+    .stat-label { 
+      font-size: 0.8em; 
+      color: #64748b; 
+      margin-top: 3px; 
+    }
+    
+    .demo-section { 
+      background: white; 
+      padding: 35px; 
+      border-radius: 8px; 
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
+    }
+    
+    .controls { 
+      text-align: center; 
+      margin: 25px 0; 
+      padding: 28px; 
+      background: #f8fafc; 
+      border-radius: 8px; 
+      border: 1px solid #cbd5e1;
+    }
+    
+    .label-text { 
+      font-weight: 600; 
+      color: #334155; 
+      margin-right: 8px; 
+      font-size: 0.95em;
+    }
+    
+    select { 
+      margin: 10px; 
+      padding: 12px 16px; 
+      border-radius: 6px; 
+      border: 2px solid #cbd5e0; 
+      background: white; 
+      color: #1e293b; 
+      min-width: 220px; 
+      cursor: pointer; 
+      font-size: 0.95em; 
+      transition: all 0.2s; 
+    }
+    
+    select:focus { 
+      outline: none; 
+      border-color: #3b82f6; 
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); 
+    }
+    
+    select:hover { border-color: #60a5fa; }
+    
+    button { 
+      margin: 10px; 
+      padding: 12px 28px; 
+      border-radius: 6px; 
+      border: none; 
+      background: #3b82f6; 
+      color: white; 
+      cursor: pointer; 
+      font-weight: 600; 
+      font-size: 0.98em; 
+      transition: all 0.2s; 
+    }
+    
+    button:hover { 
+      background: #2563eb; 
+      transform: translateY(-1px); 
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); 
+    }
+    
+    button:active { transform: translateY(0); }
+    
+    .method-description { 
+      text-align: left; 
+      margin: 25px auto; 
+      padding: 20px 24px; 
+      background: #f0f9ff; 
+      border-radius: 6px; 
+      border-left: 4px solid #3b82f6; 
+    }
+    
+    .method-description p { 
+      margin: 0; 
+      color: #475569; 
+      font-size: 0.98em; 
+      line-height: 1.7; 
+    }
+    
+    .content-wrapper { 
+      display: grid; 
+      grid-template-columns: 1fr 1fr; 
+      gap: 25px; 
+      margin-top: 30px; 
+    }
+    
+    .audio-box, .metrics-box { 
+      padding: 24px; 
+      background: #ffffff; 
+      border-radius: 8px; 
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08); 
+      border: 1px solid #e2e8f0; 
+    }
+    
+    .audio-box h2, .metrics-box h2 { 
+      color: #1e40af; 
+      margin-top: 0; 
+      font-size: 1.2em; 
+      margin-bottom: 15px; 
+      font-weight: 600;
+    }
+    
+    audio { 
+      width: 100%; 
+      margin: 12px 0; 
+      border-radius: 6px; 
+    }
+    
+    table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      margin-top: 12px; 
+    }
+    
+    th, td { 
+      padding: 12px 14px; 
+      text-align: left; 
+      border-bottom: 1px solid #e2e8f0; 
+    }
+    
+    th { 
+      color: #1e40af; 
+      font-weight: 600; 
+      background: #f8fafc; 
+      font-size: 0.95em;
+    }
+    
+    td { 
+      color: #334155; 
+      font-size: 0.95em;
+    }
+    
+    .metric-value { 
+      font-weight: 700; 
+      color: #1e40af; 
+    }
+    
     #contentSection { display: none; }
-    @media (max-width: 768px) { .content-wrapper { grid-template-columns: 1fr; } select { min-width: 160px; } }
+    
+    ul { 
+      color: #475569; 
+      line-height: 1.8; 
+      margin: 15px 0; 
+      padding-left: 24px;
+    }
+    
+    ul li { margin-bottom: 8px; }
+    
+    @media (max-width: 768px) { 
+      .container { padding: 20px 10px; } 
+      .content-wrapper, .section-grid { grid-template-columns: 1fr; } 
+      select { min-width: 180px; }
+      h1 { font-size: 2em; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .header-section, .section-card, .demo-section { padding: 24px; }
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Signal Processing Cup 2026</h1>
-    <h2>IIT Kanpur : Lowkey High-Pass</h2>
-    <h3>🎧 Audio Demo with Metrics — choose method + mixed audio</h3>
-
-    <div class="controls">
-      <label for="method">Method:</label>
-      <select id="method">
-        <option value="">-- Choose Method --</option>
-        <option value="neural_reverb">Neural Beamformer - Reverb</option>
-        <option value="two_channel_audiozooming">Two Channel AudioZooming</option>
-        <option value="neural_transformer_anechoic">Neural Transformer - Anechoic</option>
-        <option value="sepformer_enh">Sepformer - Enh</option>
-        <option value="sepformer_enh_enh">Sepformer - Enh+Enh</option>
-        <option value="dsenet">DSENet_DeepFilterNET</option>
-        <option value="dsenet_final">DSENet - Final</option>
-        <option value="dfsnet">DFSNET</option>
-        <option value="hybeam">HyBeam</option>
-        <option value="student_teacher">Student Teacher</option>
-      </select>
-
-      <label for="mixedFile">Mixed audio:</label>
-      <select id="mixedFile">
-        <option value="">-- Choose Mixed File --</option>
-      </select>
-
-      <button id="loadBtn">Load & Play</button>
+    <div class="header-section">
+      <h1>Signal Processing Cup 2026</h1>
+      <h2>IIT Kanpur : Lowkey High-Pass</h2>
     </div>
+    
+    <div class="section-grid">
+      <div class="section-card">
+        <h3 class="section-title">Problem Statement</h3>
+        <p class="section-text">
+          Audio-visual sensing on smartphones has advanced significantly; however, most systems treat visual capture and audio acquisition as independent processes. While optical zoom enables users to visually focus on a region of interest, captured audio remains a global mixture, resulting in poor perceptual alignment between what is seen and heard.
+        </p>
+        <p class="section-text">
+          The 2026 Signal Processing Cup addresses this by focusing on real-time audio-visual zooming for smartphones. The objective is to selectively enhance audio corresponding to a visually chosen target speaker, while suppressing interfering speakers and background noise using only 2 microphones.
+        </p>
+        <p class="section-text">
+          Participants must develop algorithms that exploit acoustic spatial cues and visual information to localize, track, and enhance desired sound sources. Solutions may draw from beamforming, adaptive filtering, machine learning, or hybrid frameworks. A key emphasis is <strong>edge-level, real-time operation</strong> on mobile devices with strict constraints on latency, memory, and power consumption.
+        </p>
+      </div>
 
-    <div class="method-description" id="methodDescription">
-      <p id="descriptionText">Select a method to see its description here. This text provides information about the audio processing technique and its characteristics.</p>
-    </div>
+      <div class="section-card">
+        <h3 class="section-title">Reference Papers</h3>
+        <p class="section-text">
+          The competition provided reference papers that explore related but distinct approaches to audio processing. Key differences from the SP Cup challenge include:
+        </p>
+        <div class="highlight-box">
+          <p class="section-text" style="margin-bottom: 12px;">
+            <strong>Khandelwal et al. - "Two-channel audio zooming system for smartphone":</strong>
+          </p>
+          <ul style="margin: 0; padding-left: 20px;">
+            <li><strong>Audio-only vs Audio-visual:</strong> The paper addresses directional audio enhancement with fixed front direction (90°), whereas the SP Cup requires audio focus to dynamically follow camera zoom in real-time.</li>
+            <li><strong>Reverberation handling:</strong> Treated as a nuisance with mild RT60 (~100ms). The SP Cup explicitly requires RT60 ≈ 0.5s, making reverberation a core design challenge rather than a secondary concern.</li>
+          </ul>
+        </div>
+        <div class="highlight-box">
+          <p class="section-text" style="margin-bottom: 12px;">
+            <strong>Yu & Yu - "Deep Audio Zooming: Beamwidth-Controllable Neural Beamformer":</strong>
+          </p>
+          <ul style="margin: 0; padding-left: 20px;">
+            <li>The paper enhances all speakers within a region collectively, while the SP Cup targets single-source separation with one desired source and one interferer at known angles.</li>
+          </ul>
+        </div>
+        <div class="highlight-box">
+          <p class="section-text" style="margin-bottom: 12px;">
+            <strong>Nair et al. - "Audiovisual zooming: What you see is what you hear":</strong>
+          </p>
+          <ul style="margin: 0; padding-left: 20px;">
+            <li><strong>FOV-based approach:</strong> Formulates the problem as field-of-view enhancement but acknowledges reverberation as a significant limitation with no explicit dereverberation mechanism.</li>
+            <li><strong>Model-based only:</strong> Uses purely analytical methods (generalized eigenvalue beamforming) and explicitly avoids machine learning. The SP Cup encourages learning-based and hybrid approaches.</li>
+          </ul>
+        </div>
+        <p class="section-text">
+          These foundational works informed our understanding while highlighting the unique challenges of real-time, audio-visual source separation under edge constraints.
+        </p>
+      </div>
 
-    <div id="contentSection">
-      <div class="content-wrapper">
-        <div>
-          <div class="audio-box">
-            <h2>Mixed Signal</h2>
-            <audio id="mixedAudio" controls>
-              <source id="mixedSource" type="audio/wav">
-              Your browser does not support the audio element.
-            </audio>
+      <div class="section-card">
+        <h3 class="section-title">Dataset Generated</h3>
+        <p class="section-text">
+          This large-scale dataset (150K samples) simulates real-world room conditions using <strong>LibriSpeech</strong> (target) and <strong>MUSAN</strong> (interference) as raw audio sources. Each sample is 4 seconds long with 16kHz sampling frequency. The signal-to-interference ratio is set to 0dB and signal-to-noise ratio to 5dB. The microphone is positioned 1m from sources in a 4.9m cubic room with 0.5s reverberation time.
+        </p>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-value">150K</div>
+            <div class="stat-label">Samples</div>
           </div>
-
-          <div class="audio-box">
-            <h2>Model Output</h2>
-            <audio id="outputAudio" controls>
-              <source id="outputSource" type="audio/wav">
-              Your browser does not support the audio element.
-            </audio>
+          <div class="stat-item">
+            <div class="stat-value">4s</div>
+            <div class="stat-label">Length</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">16kHz</div>
+            <div class="stat-label">Sampling</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">0dB</div>
+            <div class="stat-label">SIR</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">5dB</div>
+            <div class="stat-label">SNR</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">0.5s</div>
+            <div class="stat-label">RT60</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">1m</div>
+            <div class="stat-label">Distance</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">4.9m</div>
+            <div class="stat-label">Room Size</div>
           </div>
         </div>
+        <div class="highlight-box" style="margin-top: 18px;">
+          <p class="section-text" style="margin-bottom: 0;">
+            <strong>Efficiency:</strong> The RIR pre-calculator computes Room Impulse Response for 3600 angles (0.1° resolution) enabling instant retrieval. With parallel processing, complete dataset generation takes <strong>&lt;40 minutes</strong>!
+          </p>
+        </div>
+      </div>
+    </div>
 
-        <div>
-          <div class="metrics-box">
-            <h2>Specific Metrics</h2>
-            <table>
-              <thead><tr><th>Metric</th><th>Score</th></tr></thead>
-              <tbody>
-                <tr><td>STOI</td><td class="metric-value" id="stoi">--</td></tr>
-                <tr><td>PESQ</td><td class="metric-value" id="pesq">--</td></tr>
-                <tr><td>SI-SDR (dB)</td><td class="metric-value" id="snr">--</td></tr>
-              </tbody>
-            </table>
+    <div class="demo-section">
+      <h3 class="section-title" style="justify-content: center;">Interactive Audio Demonstration</h3>
+      <p style="text-align: center; color: #64748b; margin-bottom: 25px; font-size: 0.98em;">
+        Select a processing method and input audio file to compare model outputs and view performance metrics
+      </p>
+
+      <div class="controls">
+        <label class="label-text" for="method">Method:</label>
+        <select id="method">
+          <option value="">-- Choose Method --</option>
+          <option value="neural_reverb">Neural Beamformer - Reverb</option>
+          <option value="two_channel_audiozooming">Two Channel AudioZooming</option>
+          <option value="neural_transformer_anechoic">Neural Transformer - Anechoic</option>
+          <option value="sepformer_enh">Sepformer - Enh</option>
+          <option value="sepformer_enh_enh">Sepformer - Enh+Enh</option>
+          <option value="dsenet">DSENet_DeepFilterNET</option>
+          <option value="dsenet_final">DSENet - Final</option>
+          <option value="dfsnet">DFSNET</option>
+          <option value="hybeam">HyBeam</option>
+          <option value="student_teacher">Student Teacher</option>
+        </select>
+
+        <label class="label-text" for="mixedFile">Mixed audio:</label>
+        <select id="mixedFile">
+          <option value="">-- Choose Mixed File --</option>
+        </select>
+
+        <button id="loadBtn">Load & Compare</button>
+      </div>
+
+      <div class="method-description" id="methodDescription">
+        <p id="descriptionText">Select a method to see its description here. This text provides information about the audio processing technique and its characteristics.</p>
+      </div>
+
+      <div id="contentSection">
+        <div class="content-wrapper">
+          <div>
+            <div class="audio-box">
+              <h2>Mixed Signal</h2>
+              <audio id="mixedAudio" controls>
+                <source id="mixedSource" type="audio/wav">
+                Your browser does not support the audio element.
+              </audio>
+            </div>
+
+            <div class="audio-box">
+              <h2>Model Output</h2>
+              <audio id="outputAudio" controls>
+                <source id="outputSource" type="audio/wav">
+                Your browser does not support the audio element.
+              </audio>
+            </div>
           </div>
 
-          <div class="metrics-box">
-            <h2>Time Complexity Metrics</h2>
-            <table>
-              <thead><tr><th>Metric</th><th>Value</th></tr></thead>
-              <tbody>
-                <tr><td>CPU RAM</td><td class="metric-value" id="cpuRam">--</td></tr>
-                <tr><td>GPU VRAM</td><td class="metric-value" id="gpuVram">--</td></tr>
-                <tr><td>MACs</td><td class="metric-value" id="macsPerSec">--</td></tr>
-                <tr><td>Complexity</td><td class="metric-value" id="complexity">--</td></tr>
-              </tbody>
-            </table>
+          <div>
+            <div class="metrics-box">
+              <h2>Specific Metrics</h2>
+              <table>
+                <thead><tr><th>Metric</th><th>Score</th></tr></thead>
+                <tbody>
+                  <tr><td>STOI</td><td class="metric-value" id="stoi">--</td></tr>
+                  <tr><td>PESQ</td><td class="metric-value" id="pesq">--</td></tr>
+                  <tr><td>SI-SDR (dB)</td><td class="metric-value" id="snr">--</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="metrics-box">
+              <h2>Time Complexity Metrics</h2>
+              <table>
+                <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+                <tbody>
+                  <tr><td>CPU RAM</td><td class="metric-value" id="cpuRam">--</td></tr>
+                  <tr><td>GPU VRAM</td><td class="metric-value" id="gpuVram">--</td></tr>
+                  <tr><td>MACs</td><td class="metric-value" id="macsPerSec">--</td></tr>
+                  <tr><td>Complexity</td><td class="metric-value" id="complexity">--</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
@@ -116,15 +461,12 @@
   <script>
     const baseURL = "https://raw.githubusercontent.com/ElectronicsClub-IITK/LowkeyHighPass/main/";
 
-    // Per-method list of mixed audio filenames (without extension).
-    // These live at `mixed_audio/<method>/<name>.wav`.
     const methodMixedMap = {
       neural_transformer_anechoic: ['interference1', 'interference2', 'interference3', 'interference4'],
       dsenet_final: ['interference1', 'interference2', 'interference3', 'interference4'],
       dfsnet: ['male_female', 'dfs_test1'],
     };
 
-    // Fallback mixed files (root folder mixed_audio/<name>.wav)
     const defaultMixedList = ['male_female', 'male_song', 'male_noise1', 'male_noise2'];
 
     const methodMetricsData = {
@@ -163,7 +505,7 @@
       dsenet_final: "DSENet - Final: final/production variant of DSENet. Uses dsenet_final_* output audio pairs (e.g. dsenet_final_male_noise1.wav).",
       dfsnet: "Deep Feature Separation Network (DFSNet) extracts and separates audio sources using hierarchical feature learning. This method achieves robust separation across various acoustic conditions with moderate computational requirements.",
       hybeam: "HyBeam cleans audio using a hybrid approach: delay-and-sum processing combined with an LSTM-based FT-JNF model.",
-      student_teacher: "Student–teacher lets a smaller model mimic a big one: instead of learning from true labels, the student is trained to match the large teacher model’s outputs, making it suitable for edge devices."
+      student_teacher: "Student–teacher lets a smaller model mimic a big one: instead of learning from true labels, the student is trained to match the large teacher model's outputs, making it suitable for edge devices."
     };
 
     const methodSelect = document.getElementById('method');
@@ -196,10 +538,8 @@
       student_teacher: 'student_teacher'
     };
 
-    // Owner token for root fallback folder
     const ROOT_OWNER = '__root';
 
-    // Populate mixed select for a given method.
     function populateMixedForMethod(method) {
       mixedSelect.innerHTML = '';
       const headerOpt = document.createElement('option');
@@ -207,8 +547,6 @@
       headerOpt.textContent = '-- Choose Mixed File --';
       mixedSelect.appendChild(headerOpt);
 
-      // if the method has its own list -> owner is method and files live in mixed_audio/<method>/
-      // otherwise fall back to default list and use the root folder mixed_audio/<name>.wav
       const hasOwn = Array.isArray(methodMixedMap[method]) && methodMixedMap[method].length > 0;
       const owner = hasOwn ? method : ROOT_OWNER;
       const list = hasOwn ? methodMixedMap[method] : defaultMixedList;
@@ -225,15 +563,12 @@
       mixedSelect.disabled = false;
       for (const mixedName of list) {
         const opt = document.createElement('option');
-        // value encodes owner so we can build correct URLs later
         opt.value = `${owner}||${mixedName}`;
         opt.textContent = mixedName;
         mixedSelect.appendChild(opt);
       }
     }
 
-    // Build mixed audio URL: if owner === ROOT_OWNER -> mixed_audio/<name>.wav
-    // otherwise -> mixed_audio/<owner>/<name>.wav
     function buildMixedUrlFor(owner, mixedName) {
       if (owner === ROOT_OWNER) {
         return `${baseURL}mixed_audio/${mixedName}.wav`;
@@ -242,7 +577,6 @@
       }
     }
 
-    // Build output audio URL (keeps your existing flat output structure)
     function buildOutputUrlFor(method, mixedName) {
       const prefix = methodOutputMap[method] || method;
       return `${baseURL}output_audio/${prefix}_${mixedName}.wav`;
@@ -280,7 +614,6 @@
       if (!method) return alert('Select a method first');
       if (!mixedValue) return alert('Select a mixed file');
 
-      // mixedValue is encoded as "<owner>||<mixedName>"
       const [owner, mixedName] = mixedValue.split('||');
       const mixedUrl = buildMixedUrlFor(owner, mixedName);
       const outputUrl = buildOutputUrlFor(method, mixedName);
@@ -302,10 +635,6 @@
         console.log(a.id, 'loaded successfully:', a.currentSrc);
       });
     });
-
-    // Optionally set a default method on load
-    // methodSelect.value = 'dsenet';
-    // methodSelect.dispatchEvent(new Event('change'));
   </script>
 </body>
 </html>
