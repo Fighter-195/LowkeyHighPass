@@ -7,7 +7,7 @@
   <style>
     body { 
       font-family: "Inter", "Segoe UI", sans-serif; 
-      background: #e8f4f8; 
+      background: #dbeafe; 
       color: #1e293b; 
       margin: 0; 
       padding: 40px 20px; 
@@ -39,8 +39,8 @@
     }
     
     .section-grid { 
-      display: grid; 
-      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); 
+      display: flex;
+      flex-direction: column;
       gap: 25px; 
       margin-bottom: 30px; 
     }
@@ -51,6 +51,12 @@
       border-radius: 8px; 
       box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
       border-top: 4px solid #3b82f6;
+      transition: all 0.3s ease;
+    }
+    
+    .section-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.15);
     }
     
     .section-title { 
@@ -58,9 +64,7 @@
       font-size: 1.4em; 
       margin-bottom: 18px; 
       font-weight: 600;
-      display: flex; 
-      align-items: center; 
-      gap: 10px; 
+      display: block;
     }
     
     .section-icon { font-size: 1.2em; }
@@ -90,23 +94,30 @@
     
     .stat-item { 
       text-align: center; 
-      padding: 10px 14px; 
+      padding: 8px 10px; 
       background: #f8fafc; 
       border-radius: 6px; 
       border: 1px solid #e2e8f0;
-      min-width: 90px;
+      min-width: 70px;
+      transition: all 0.2s ease;
+    }
+    
+    .stat-item:hover {
+      background: #eff6ff;
+      border-color: #3b82f6;
+      transform: scale(1.05);
     }
     
     .stat-value { 
-      font-size: 1.4em; 
+      font-size: 1.1em; 
       font-weight: 700; 
       color: #1e40af; 
     }
     
     .stat-label { 
-      font-size: 0.8em; 
+      font-size: 0.75em; 
       color: #64748b; 
-      margin-top: 3px; 
+      margin-top: 2px; 
     }
     
     .demo-section { 
@@ -142,16 +153,25 @@
       min-width: 220px; 
       cursor: pointer; 
       font-size: 0.95em; 
-      transition: all 0.2s; 
+      transition: all 0.3s ease; 
     }
     
     select:focus { 
       outline: none; 
       border-color: #3b82f6; 
       box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); 
+      transform: scale(1.02);
     }
     
-    select:hover { border-color: #60a5fa; }
+    select:hover { 
+      border-color: #60a5fa; 
+      transform: scale(1.02);
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+    }
+    
+    select:active {
+      transform: scale(0.98);
+    }
     
     button { 
       margin: 10px; 
@@ -163,16 +183,19 @@
       cursor: pointer; 
       font-weight: 600; 
       font-size: 0.98em; 
-      transition: all 0.2s; 
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
     }
     
     button:hover { 
       background: #2563eb; 
-      transform: translateY(-1px); 
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); 
+      transform: translateY(-2px); 
+      box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4); 
     }
     
-    button:active { transform: translateY(0); }
+    button:active { 
+      transform: translateY(0) scale(0.98); 
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    }
     
     .method-description { 
       text-align: left; 
@@ -203,6 +226,12 @@
       border-radius: 8px; 
       box-shadow: 0 1px 4px rgba(0,0,0,0.08); 
       border: 1px solid #e2e8f0; 
+      transition: all 0.3s ease;
+    }
+    
+    .audio-box:hover, .metrics-box:hover {
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.12);
+      transform: translateY(-2px);
     }
     
     .audio-box h2, .metrics-box h2 { 
@@ -261,7 +290,7 @@
     
     @media (max-width: 768px) { 
       .container { padding: 20px 10px; } 
-      .content-wrapper, .section-grid { grid-template-columns: 1fr; } 
+      .content-wrapper { grid-template-columns: 1fr; } 
       select { min-width: 180px; }
       h1 { font-size: 2em; }
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
@@ -345,24 +374,12 @@
             <div class="stat-label">Sampling</div>
           </div>
           <div class="stat-item">
-            <div class="stat-value">0dB</div>
-            <div class="stat-label">SIR</div>
-          </div>
-          <div class="stat-item">
             <div class="stat-value">5dB</div>
             <div class="stat-label">SNR</div>
           </div>
           <div class="stat-item">
             <div class="stat-value">0.5s</div>
             <div class="stat-label">RT60</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-value">1m</div>
-            <div class="stat-label">Distance</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-value">4.9m</div>
-            <div class="stat-label">Room Size</div>
           </div>
         </div>
         <div class="highlight-box" style="margin-top: 18px;">
