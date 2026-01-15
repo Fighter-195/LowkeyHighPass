@@ -14,6 +14,29 @@
       line-height: 1.7; 
       min-height: 100vh; 
     }
+    /* Math equation box */
+.math-box {
+  background: #f8fafc;
+  border-left: 4px solid #3b82f6;
+  padding: 14px 18px;
+  margin: 16px 0;
+  border-radius: 6px;
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+  font-size: 0.95em;
+  color: #0f172a;
+  overflow-x: auto;
+}
+
+/* Optional label above equation */
+.math-label {
+  font-size: 0.8em;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
     h1, h2, h3 { margin: 0; font-weight: 600; }
     h1 { 
       color: #0f172a; 
@@ -597,9 +620,11 @@
     The stereo input signals are transformed into the short-time Fourier transform (STFT) domain to obtain a complex-valued time–frequency representation. For each microphone channel
     <strong>m ∈ {1, 2}</strong>, the STFT is given by:
   </p>
-  <p class="section-text" style="font-family: monospace;">
-    X<sub>m</sub>(f, ν) = STFT{ x<sub>m</sub>(t) }
-  </p>
+  <div class="math-box">
+  <div class="math-label">STFT Representation</div>
+  X<sub>m</sub>(f, ν) = STFT{ x<sub>m</sub>(t) }
+</div>
+
   <p class="section-text">
     Here, <strong>f</strong> and <strong>ν</strong> denote frequency bin and time frame indices, respectively. Both real and imaginary components are explicitly preserved and stacked as separate channels to retain phase information critical for spatial modeling and dereverberation.
   </p>
