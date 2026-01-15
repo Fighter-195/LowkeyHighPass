@@ -651,15 +651,19 @@
   <p class="section-text">
     To achieve spatial selectivity, the target direction <strong>θ</strong> is provided as side information using a continuous sinusoidal encoding:
   </p>
-  <p class="section-text" style="font-family: monospace;">
-    a = [ sin(θ), cos(θ) ]
-  </p>
+  <div class="math-box">
+  <div class="math-label">Directional Encoding</div>
+  a = [ sin(θ), cos(θ) ]
+</div>
+
   <p class="section-text">
     This representation avoids angular discontinuities and enables smooth interpolation across directions. The angle vector is passed through an MLP to produce an embedding that is injected into the bottleneck features via additive feature-wise modulation:
   </p>
-  <p class="section-text" style="font-family: monospace;">
-    E′(f, ν) = E(f, ν) + g(a)
-  </p>
+  <div class="math-box">
+  <div class="math-label">Angle-Conditioned Bottleneck</div>
+  E′(f, ν) = E(f, ν) + g(a)
+</div>
+
   <p class="section-text">
     This conditioning biases the network toward components arriving from the desired direction while suppressing off-axis interference.
   </p>
@@ -677,9 +681,11 @@
   <p class="section-text">
     The LSTM operates on the magnitude of the complex features:
   </p>
-  <p class="section-text" style="font-family: monospace;">
-    |E(f, ν)| = √(E<sub>real</sub>² + E<sub>imag</sub>²)
-  </p>
+ <div class="math-box">
+  <div class="math-label">Complex Magnitude</div>
+  |E(f, ν)| = √(E<sub>real</sub><sup>2</sup> + E<sub>imag</sub><sup>2</sup>)
+</div>
+
   <p class="section-text">
     The output modulates both real and imaginary components, enhancing speech while preserving phase coherence.
   </p>
@@ -695,15 +701,19 @@
   <p class="section-text">
     The network estimates a complex ratio mask (CRM):
   </p>
-  <p class="section-text" style="font-family: monospace;">
-    M(f, ν) = M<sub>r</sub>(f, ν) + i M<sub>i</sub>(f, ν)
-  </p>
+  <div class="math-box">
+  <div class="math-label">Complex Ratio Mask</div>
+  M(f, ν) = M<sub>r</sub>(f, ν) + iM<sub>i</sub>(f, ν)
+</div>
+
   <p class="section-text">
     The enhanced spectrogram is obtained by applying the mask to the reference microphone:
   </p>
-  <p class="section-text" style="font-family: monospace;">
-    Ŝ(f, ν) = X₁(f, ν) · M(f, ν)
-  </p>
+ <div class="math-box">
+  <div class="math-label">Masked Spectrogram</div>
+  Ŝ(f, ν) = X₁(f, ν) · M(f, ν)
+</div>
+
   <p class="section-text">
     Complex masking allows joint magnitude and phase correction, resulting in improved naturalness and reduced reverberation artifacts. Mask values are bounded using a tanh nonlinearity for numerical stability.
   </p>
@@ -713,9 +723,11 @@
   <p class="section-text">
     The enhanced complex spectrogram is transformed back to the time domain using inverse STFT:
   </p>
-  <p class="section-text" style="font-family: monospace;">
-    ŝ(t) = ISTFT{ Ŝ(f, ν) }
-  </p>
+ <div class="math-box">
+  <div class="math-label">Time-Domain Reconstruction</div>
+  ŝ(t) = ISTFT{ Ŝ(f, ν) }
+</div>
+
 
   <!-- 2.8 -->
   <h4 class="section-title" style="font-size: 1.15em;">Training Objective</h4>
