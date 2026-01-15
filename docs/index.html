@@ -37,6 +37,30 @@
   letter-spacing: 0.04em;
 }
 
+    /* Architecture figure box */
+.figure-box {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 30px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  text-align: center;
+}
+
+.figure-box img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+.figure-caption {
+  margin-top: 14px;
+  font-size: 0.9em;
+  color: #475569;
+  line-height: 1.6;
+}
+
     h1, h2, h3 { margin: 0; font-weight: 600; }
     h1 { 
       color: #0f172a; 
@@ -740,12 +764,24 @@
     <li>Silence regularization to suppress hallucinated speech</li>
   </ul>
 
-  <div class="highlight-box">
-    <p class="section-text" style="margin-bottom: 0;">
-      <strong>Fig. X:</strong> Block diagram of the proposed direction-conditioned DCCRN architecture. Stereo input is transformed into the complex STFT domain, processed by a complex encoder–decoder with angle conditioning and dual-path LSTM, followed by complex ratio masking and inverse STFT to recover enhanced target speech.
-    </p>
+ <div class="figure-box">
+  <img
+    src="docs/architecture.png"
+    alt="Block diagram of the proposed direction-conditioned DCCRN system"
+  />
+
+  <div class="figure-caption">
+    <strong>Fig. X.</strong>
+    Block diagram of the proposed direction-conditioned DCCRN architecture.
+    The stereo input is transformed into the complex STFT domain and processed
+    by a complex-valued encoder–decoder network. Target direction information
+    is injected at the bottleneck via angle conditioning, while a dual-path LSTM
+    models long-range temporal and spectral dependencies. A complex ratio mask
+    is estimated and applied to the reference channel, followed by inverse STFT
+    to obtain the enhanced target speech signal.
   </div>
 </div>
+
 
       </div>
     </div>
