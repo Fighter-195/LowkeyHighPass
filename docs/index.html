@@ -567,8 +567,149 @@
             <p class="section-text" style="margin-bottom: 0;">
               <strong>Efficiency:</strong> The RIR pre-calculator computes Room Impulse Response for 3600 angles (0.1° resolution) enabling instant retrieval. With parallel processing, complete dataset generation takes <strong>&lt;40 minutes</strong>!
             </p>
-          </div>
+          </div>  
         </div>
+        <div class="section-card">
+  <h3 class="section-title">Proposed Direction-Conditioned Speech Extraction System</h3>
+
+  <p class="section-text">
+    We consider a two-microphone recording setup in a reverberant environment, where a target speech source and one or more interfering sources are present at different spatial directions. The objective is to extract the speech signal arriving from a desired target direction while suppressing interference, noise, and reverberation.
+  </p>
+
+  <p class="section-text">
+    Let <strong>x₁(t)</strong> and <strong>x₂(t)</strong> denote the time-domain signals captured by the two microphones. The target source is assumed to arrive from direction <strong>θ</strong>, while all other sources are treated as interference. The proposed system exploits spatial cues from stereo audio and explicit directional conditioning to perform selective speech extraction.
+  </p>
+
+  <div class="highlight-box">
+    <p class="section-text" style="margin-bottom: 0;">
+      <strong>System Overview:</strong> The overall architecture consists of three major stages:
+    </p>
+    <ul>
+      <li>Complex time–frequency representation and encoding</li>
+      <li>Direction-conditioned bottleneck processing with dual-path temporal modeling</li>
+      <li>Complex ratio masking and waveform reconstruction</li>
+    </ul>
+  </div>
+
+  <!-- 2.1 -->
+  <h4 class="section-title" style="font-size: 1.15em;">Complex Time–Frequency Representation</h4>
+  <p class="section-text">
+    The stereo input signals are transformed into the short-time Fourier transform (STFT) domain to obtain a complex-valued time–frequency representation. For each microphone channel
+    <strong>m ∈ {1, 2}</strong>, the STFT is given by:
+  </p>
+  <p class="section-text" style="font-family: monospace;">
+    X<sub>m</sub>(f, ν) = STFT{ x<sub>m</sub>(t) }
+  </p>
+  <p class="section-text">
+    Here, <strong>f</strong> and <strong>ν</strong> denote frequency bin and time frame indices, respectively. Both real and imaginary components are explicitly preserved and stacked as separate channels to retain phase information critical for spatial modeling and dereverberation.
+  </p>
+
+  <!-- 2.2 -->
+  <h4 class="section-title" style="font-size: 1.15em;">Complex Encoder Network</h4>
+  <p class="section-text">
+    A deep complex-valued convolutional encoder extracts high-level spectral–spatial features while maintaining phase consistency. The encoder progressively increases channel dimensionality while downsampling along the frequency axis and preserving temporal resolution.
+  </p>
+
+  <ul>
+    <li>Complex 2D convolution</li>
+    <li>Independent batch normalization on real and imaginary components</li>
+    <li>LeakyReLU nonlinearity</li>
+    <li>Squeeze-and-Excitation based channel attention</li>
+  </ul>
+
+  <p class="section-text">
+    Channel attention enables the network to emphasize speech-dominant frequency regions while suppressing noise- and reverberation-heavy bands.
+  </p>
+
+  <!-- 2.3 -->
+  <h4 class="section-title" style="font-size: 1.15em;">Directional Angle Conditioning</h4>
+  <p class="section-text">
+    To achieve spatial selectivity, the target direction <strong>θ</strong> is provided as side information using a continuous sinusoidal encoding:
+  </p>
+  <p class="section-text" style="font-family: monospace;">
+    a = [ sin(θ), cos(θ) ]
+  </p>
+  <p class="section-text">
+    This representation avoids angular discontinuities and enables smooth interpolation across directions. The angle vector is passed through an MLP to produce an embedding that is injected into the bottleneck features via additive feature-wise modulation:
+  </p>
+  <p class="section-text" style="font-family: monospace;">
+    E′(f, ν) = E(f, ν) + g(a)
+  </p>
+  <p class="section-text">
+    This conditioning biases the network toward components arriving from the desired direction while suppressing off-axis interference.
+  </p>
+
+  <!-- 2.4 -->
+  <h4 class="section-title" style="font-size: 1.15em;">Dual-Path LSTM Bottleneck</h4>
+  <p class="section-text">
+    To model reverberation decay and long-range temporal dependencies, a dual-path LSTM is applied at the bottleneck. It consists of:
+  </p>
+  <ul>
+    <li>Frequency-domain LSTM (intra-frame spectral modeling)</li>
+    <li>Time-domain LSTM (long-range temporal modeling)</li>
+  </ul>
+
+  <p class="section-text">
+    The LSTM operates on the magnitude of the complex features:
+  </p>
+  <p class="section-text" style="font-family: monospace;">
+    |E(f, ν)| = √(E<sub>real</sub>² + E<sub>imag</sub>²)
+  </p>
+  <p class="section-text">
+    The output modulates both real and imaginary components, enhancing speech while preserving phase coherence.
+  </p>
+
+  <!-- 2.5 -->
+  <h4 class="section-title" style="font-size: 1.15em;">Complex Decoder with Skip Connections</h4>
+  <p class="section-text">
+    The decoder mirrors the encoder using complex-valued transposed convolutions. Skip connections link corresponding encoder and decoder layers, preserving fine spectral detail and spatial cues critical for high-frequency speech reconstruction.
+  </p>
+
+  <!-- 2.6 -->
+  <h4 class="section-title" style="font-size: 1.15em;">Complex Ratio Mask Estimation</h4>
+  <p class="section-text">
+    The network estimates a complex ratio mask (CRM):
+  </p>
+  <p class="section-text" style="font-family: monospace;">
+    M(f, ν) = M<sub>r</sub>(f, ν) + i M<sub>i</sub>(f, ν)
+  </p>
+  <p class="section-text">
+    The enhanced spectrogram is obtained by applying the mask to the reference microphone:
+  </p>
+  <p class="section-text" style="font-family: monospace;">
+    Ŝ(f, ν) = X₁(f, ν) · M(f, ν)
+  </p>
+  <p class="section-text">
+    Complex masking allows joint magnitude and phase correction, resulting in improved naturalness and reduced reverberation artifacts. Mask values are bounded using a tanh nonlinearity for numerical stability.
+  </p>
+
+  <!-- 2.7 -->
+  <h4 class="section-title" style="font-size: 1.15em;">Time-Domain Reconstruction</h4>
+  <p class="section-text">
+    The enhanced complex spectrogram is transformed back to the time domain using inverse STFT:
+  </p>
+  <p class="section-text" style="font-family: monospace;">
+    ŝ(t) = ISTFT{ Ŝ(f, ν) }
+  </p>
+
+  <!-- 2.8 -->
+  <h4 class="section-title" style="font-size: 1.15em;">Training Objective</h4>
+  <p class="section-text">
+    The network is trained using a perceptually motivated objective combining:
+  </p>
+  <ul>
+    <li>Scale-Invariant SDR (SI-SDR) loss</li>
+    <li>Multi-resolution STFT loss</li>
+    <li>Silence regularization to suppress hallucinated speech</li>
+  </ul>
+
+  <div class="highlight-box">
+    <p class="section-text" style="margin-bottom: 0;">
+      <strong>Fig. X:</strong> Block diagram of the proposed direction-conditioned DCCRN architecture. Stereo input is transformed into the complex STFT domain, processed by a complex encoder–decoder with angle conditioning and dual-path LSTM, followed by complex ratio masking and inverse STFT to recover enhanced target speech.
+    </p>
+  </div>
+</div>
+
       </div>
     </div>
 
