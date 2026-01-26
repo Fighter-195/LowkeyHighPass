@@ -702,25 +702,17 @@
   </p>
 
   <!-- 2.4 -->
-  <h4 class="section-title" style="font-size: 1.15em;">Dual-Path LSTM Bottleneck</h4>
+  <h4 class="section-title" style="font-size: 1.15em;">Dual-Path Conformer Bottleneck</h4>
   <p class="section-text">
-    To model reverberation decay and long-range temporal dependencies, a dual-path LSTM is applied at the bottleneck. It consists of:
+    To model reverberation decay and long-range temporal dependencies, a dual-path conformer is applied at the bottleneck. It consists of:
   </p>
   <ul>
-    <li>Frequency-domain LSTM (intra-frame spectral modeling)</li>
-    <li>Time-domain LSTM (long-range temporal modeling)</li>
+    <li>Self-Attention (parallel processing comparison of time frames)</li>
+    <li>Convolution (lto ensure continuity)</li>
   </ul>
 
   <p class="section-text">
-    The LSTM operates on the magnitude of the complex features:
-  </p>
- <div class="math-box">
-  <div class="math-label">Complex Magnitude</div>
-  |E(f, ν)| = √(E<sub>real</sub><sup>2</sup> + E<sub>imag</sub><sup>2</sup>)
-</div>
-
-  <p class="section-text">
-    The output modulates both real and imaginary components, enhancing speech while preserving phase coherence.
+    The self attention provides global context, and the convolution enforces local structure continuity.
   </p>
 
   <!-- 2.5 -->
