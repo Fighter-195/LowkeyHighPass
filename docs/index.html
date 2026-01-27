@@ -890,21 +890,20 @@
           <div class="architecture-text">
             <h4>Audio Processing Framework</h4>
             <p>
-              The audio-visual zooming system employs a multi-stage processing pipeline that transforms raw microphone inputs into enhanced target speech. The architecture integrates classical signal processing with modern deep learning techniques to achieve robust performance under challenging acoustic conditions.
-            </p>
+              The audio-visual zooming system follows a complex-valued, direction-aware speech enhancement pipeline that transforms raw stereo microphone signals into directionally focused target speech. The architecture combines classical time–frequency signal processing with deep neural networks designed to exploit spatial cues, temporal context, and global acoustic structure under overlapping speech conditions.
             
             <h4>Key Processing Stages</h4>
             <p>
-              <strong>Input Stage:</strong> Dual-microphone signals capture spatial information through inter-channel phase and amplitude differences. The system operates on 4-second audio segments at 16kHz sampling rate, balancing temporal context with real-time constraints.
+              <strong>Input Stage:</strong> Stereo microphone signals are processed in 4-second segments at a 16 kHz sampling rate. Each segment is transformed into the time–frequency domain using the Short-Time Fourier Transform (STFT). Both real and imaginary components are retained, preserving inter-channel phase differences and spatial information critical for directional selectivity.
             </p>
             <p>
-              <strong>Beamforming & Spatial Processing:</strong> Initial spatial filtering exploits the geometric arrangement of microphones to form directional sensitivity patterns. This stage provides coarse source separation by enhancing signals from the target direction while attenuating off-axis interference.
+              <strong>Complex Encoding & Spatial Conditioning:</strong> The STFT representations pass through a stack of complex-valued convolutional layers that operate directly in the complex domain. These layers learn joint spectral, temporal, and spatial patterns, including harmonics, interference structures, and phase-based spatial cues. After each convolution, real and imaginary components are normalized separately and passed through Squeeze–Excitation blocks to adaptively emphasize informative feature channels. Direction-of-interest information is injected via angle conditioning at the encoded feature level, guiding the network’s spatial focus.
             </p>
             <p>
-              <strong>Neural Enhancement:</strong> Deep learning models refine the beamformed output by learning complex acoustic patterns from training data. These models handle non-linear distortions, reverberation effects, and residual interference that classical methods cannot address.
+              <strong>Context Modeling & Neural Enhancement:</strong> At the bottleneck, long-range temporal and spectral dependencies are modeled using a Conformer-based architecture. Self-attention enables global context aggregation across time, allowing the model to relate distant frames affected by reverberation or overlapping speakers, while convolution modules enforce local continuity in speech structure. This combination replaces purely recurrent processing and improves robustness in complex acoustic scenes.
             </p>
             <p>
-              <strong>Output Stage:</strong> The final enhanced signal undergoes quality-preserving normalization and format conversion, ensuring perceptual quality metrics (STOI, PESQ) are optimized while maintaining low latency for real-time operation.
+              <strong>Decoding & Output Stage:</strong>The decoder mirrors the encoder using complex transposed convolutions with skip connections to recover fine-grained details. A complex ratio mask is estimated and applied to the reference channel, modulating magnitude while preserving phase. The enhanced waveform is reconstructed via inverse STFT, followed by normalization to ensure perceptual quality and low-latency real-time performance, optimized for metrics such as STOI and PESQ.
             </p>
           </div>
           
