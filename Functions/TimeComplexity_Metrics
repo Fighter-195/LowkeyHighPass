@@ -1,0 +1,233 @@
+import os
+import time
+import gc
+import json
+import psutil
+import torch
+import tracemalloc
+import numpy as np
+import pandas as pd
+import soundfile as sf
+from thop import profile
+from scipy import signal
+
+# =================================UTILITY HELPERS==================================
+
+def get_memory_usage():
+    """Return current process memory (MB)."""
+    return psutil.Process(os.getpid()).memory_info().rss / (1024 ** 2)
+
+def print_summary(title, stats):
+    print(f"\n===== {title.upper()} SUMMARY =====")
+    for k, v in stats.items():
+        print(f"{k:25s}: {v}")
+
+# =======================================TRAINING BENCHMARK========================================
+
+def benchmark_training(model, train_loader, criterion, optimizer, device='cuda', epochs=3):
+    device = torch.device(device if torch.cuda.is_available() else 'cpu')
+    model.to(device).train()
+    tracemalloc.start()
+
+    gpu_start = torch.cuda.memory_allocated(device) / (1024 ** 2) if device.type == 'cuda' else 0
+    start_time = time.perf_counter()
+    per_epoch_times = []
+
+    for epoch in range(epochs):
+        epoch_start = time.perf_counter()
+        running_loss = 0.0
+
+        for x, y in train_loader:
+            x, y = x.to(device), y.to(device)
+            optimizer.zero_grad()
+            out = model(x)
+            loss = criterion(out, y)
+            loss.backward()
+            optimizer.step()
+            running_loss += loss.item()
+
+        epoch_time = time.perf_counter() - epoch_start
+        per_epoch_times.append(epoch_time)
+        print(f"Epoch {epoch+1}/{epochs} | Time: {epoch_time:.2f}s | Loss: {running_loss:.4f}")
+
+    total_time = time.perf_counter() - start_time
+    _, peak_mem = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+    gpu_end = torch.cuda.memory_allocated(device) / (1024 ** 2) if device.type == 'cuda' else 0
+
+    stats = {
+        "Total_Train_Time_s": round(total_time, 2),
+        "Avg_Epoch_Time_s": round(np.mean(per_epoch_times), 2),
+        "Peak_CPU_Mem_MB": round(peak_mem / (1024 ** 2), 2),
+        "Peak_GPU_Mem_MB": round(gpu_end - gpu_start, 2)
+    }
+    print_summary("Training", stats)
+    return stats
+
+# ================================INFERENCE BENCHMARK==================================
+
+def benchmark_inference(model_or_func, audio_path, fs=16000, device='cpu',
+                        algo_type='neural', params=None, repeats=3):
+    """Benchmark runtime, memory, and complexity of inference."""
+    if not os.path.exists(audio_path):
+        raise FileNotFoundError(f"Audio file not found: {audio_path}")
+
+    x, sr = sf.read(audio_path)
+    assert sr == fs, f"Sampling rate mismatch: expected {fs}, got {sr}"
+    audio_dur = len(x) / fs
+    is_neural = isinstance(model_or_func, torch.nn.Module)
+
+    # Define inference function
+    if is_neural:
+        model = model_or_func.to(device)
+        model.eval()
+        def run(sig):
+            with torch.no_grad():
+                inp = torch.tensor(sig, dtype=torch.float32, device=device)
+                if inp.ndim == 1: inp = inp.unsqueeze(0).unsqueeze(0)
+                out = model(inp)
+                return out.cpu().numpy()
+    else:
+        run = model_or_func
+
+    # Benchmark loop
+    tracemalloc.start()
+    gpu_start = torch.cuda.memory_allocated() / (1024 ** 2) if torch.cuda.is_available() else 0
+    times = []
+
+    for _ in range(repeats):
+        gc.collect()
+        torch.cuda.empty_cache()
+        start = time.perf_counter()
+        _ = run(x)
+        times.append(time.perf_counter() - start)
+
+    runtime = np.mean(times)
+    _, peak_mem = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+    gpu_end = torch.cuda.memory_allocated() / (1024 ** 2) if torch.cuda.is_available() else 0
+
+    cpu_mem = get_memory_usage()
+    RTF = runtime / audio_dur
+
+    # MACs (for neural models)
+    macs = macs_per_s = None
+    if is_neural:
+        dummy = torch.randn(1, 1, len(x), device=device)
+        macs, _ = profile(model, inputs=(dummy,), verbose=False)
+        macs_per_s = macs / runtime
+        macs, macs_per_s = round(macs/1e6, 2), round(macs_per_s/1e6, 2)
+
+    # Complexity estimate
+    p = params or {}
+    M, F, L, d = p.get('M', 3), p.get('F', 256), p.get('L', 100), p.get('d', 64)
+    if algo_type.lower() in ['mpdr', 'mvdr']:
+        complexity = f"O(F*M³) ≈ O({F*M**3})"
+    elif algo_type.lower() == 'neural':
+        complexity = f"O(L²*d) ≈ O({L**2*d})"
+    else:
+        complexity = "O(N)"
+
+    stats = {
+        "Audio_Duration_s": round(audio_dur, 2),
+        "Runtime_s": round(runtime, 3),
+        "RTF": round(RTF, 3),
+        "Peak_CPU_Mem_MB": round(peak_mem / (1024 ** 2), 2),
+        "Peak_GPU_Mem_MB": round(gpu_end - gpu_start, 2),
+        "CPU_Mem_MB": round(cpu_mem, 2),
+        "MACs_M": macs or "N/A",
+        "MACs_per_s_M": macs_per_s or "N/A",
+        "Approx_Complexity": complexity
+    }
+    print_summary("Inference", stats)
+    return stats
+
+# ==========================================TESTING BENCHMARK======================================
+
+def benchmark_testing(model, test_loader, eval_fn, device='cuda'):
+    """Benchmark evaluation phase on test data."""
+    device = torch.device(device if torch.cuda.is_available() else 'cpu')
+    model.to(device).eval()
+    tracemalloc.start()
+    gpu_start = torch.cuda.memory_allocated(device) / (1024 ** 2) if device.type == 'cuda' else 0
+    start = time.perf_counter()
+
+    with torch.no_grad():
+        metrics = eval_fn(model, test_loader, device)
+
+    total_time = time.perf_counter() - start
+    _, peak_mem = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+    gpu_end = torch.cuda.memory_allocated(device) / (1024 ** 2) if device.type == 'cuda' else 0
+
+    stats = {
+        "Testing_Time_s": round(total_time, 2),
+        "Peak_CPU_Mem_MB": round(peak_mem / (1024 ** 2), 2),
+        "Peak_GPU_Mem_MB": round(gpu_end - gpu_start, 2),
+        **metrics
+    }
+    print_summary("Testing", stats)
+    return stats
+
+# ===============================MASTER WRAPPER==============================
+
+def benchmark_all(model_or_func, train_loader=None, test_loader=None, criterion=None,
+                  optimizer=None, eval_fn=None, audio_path="test.wav", algo_type='neural',
+                  params=None, device='cuda', epochs=3, repeats=3):
+    """Unified entry for training + inference + testing benchmarks."""
+    all_stats = {}
+
+    if train_loader and criterion and optimizer:
+        all_stats.update(benchmark_training(model_or_func, train_loader, criterion, optimizer, device, epochs))
+
+    all_stats.update(benchmark_inference(model_or_func, audio_path, device=device,
+                                         algo_type=algo_type, params=params, repeats=repeats))
+
+    if test_loader and eval_fn:
+        all_stats.update(benchmark_testing(model_or_func, test_loader, eval_fn, device))
+
+    pd.DataFrame([all_stats]).to_csv("benchmark_results.csv", index=False)
+    print("\nBenchmark completed. Results saved to 'benchmark_results.csv'")
+    return all_stats
+
+# ============================= EXAMPLE USAGE============================
+
+if __name__ == "__main__":
+    # Dummy classical function
+    def mpdr_func(x):
+        f, t, Zxx = signal.stft(x, fs=16000, nperseg=512)
+        _ = np.linalg.pinv(np.random.rand(3, 3))
+        _, x_rec = signal.istft(Zxx, fs=16000)
+        return x_rec
+
+    # Dummy neural model
+    class NeuralBeamformer(torch.nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.net = torch.nn.Sequential(
+                torch.nn.Conv1d(1, 32, 3, padding=1),
+                torch.nn.ReLU(),
+                torch.nn.Conv1d(32, 1, 3, padding=1)
+            )
+        def forward(self, x): return self.net(x)
+
+    model = NeuralBeamformer()
+    criterion = torch.nn.MSELoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+
+    # Dummy loaders & eval
+    train_loader = [(torch.randn(1,1,16000), torch.randn(1,1,16000)) for _ in range(3)]
+    test_loader = [(torch.randn(1,1,16000), torch.randn(1,1,16000)) for _ in range(1)]
+    def eval_fn(model, loader, device): return {"SDR": 14.8, "PESQ": 3.42}
+
+    benchmark_all(model,
+                  train_loader=train_loader,
+                  test_loader=test_loader,
+                  criterion=criterion,
+                  optimizer=optimizer,
+                  eval_fn=eval_fn,
+                  audio_path="test.wav",
+                  algo_type='neural',
+                  params={'L':200, 'd':128},
+                  device='cpu',
+                  epochs=2)
